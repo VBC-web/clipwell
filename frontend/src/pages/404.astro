@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import PlatformIcon from '../components/PlatformIcon.astro';
+import { PLATFORM_KEYS, PLATFORMS } from '../lib/platforms';
+
+const platforms = PLATFORM_KEYS.map((key) => PLATFORMS[key]);
+---
+
+<BaseLayout
+  title="Page not found — Clipwell"
+  description="The page you requested does not exist. Open the Clipwell downloader or choose a supported platform."
+  path="/404/"
+  noindex
+>
+  <section class="container-page py-20 md:py-28">
+    <div class="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div>
+        <p class="eyebrow">404 / Off the map</p>
+        <h1 class="display-page mt-5">This page took<br /><em class="italic text-accent">a wrong turn.</em></h1>
+        <p class="lede mt-5 max-w-lg">
+          The link is broken or the page has moved. Nothing was downloaded, and no request was sent
+          to the backend. Try the downloader or pick a platform.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-2">
+          <a href="/#downloader" class="btn btn-primary btn-lg">
+            Open the downloader
+            <Icon name="arrow" class="h-4 w-4" />
+          </a>
+          <a href="/" class="btn btn-secondary btn-lg">Back home</a>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex items-center justify-between gap-3 border-b border-line pb-3">
+          <p class="text-[0.68rem] font-[750] uppercase tracking-[0.12em] text-muted">Supported platforms</p>
+          <span class="tag">7 routes</span>
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-1.5">
+          {platforms.map((platform) => (
+            <a
+              href={`/${platform.slug}/`}
+              class="flex items-center gap-2 rounded-sm px-2 py-2 text-[0.8rem] font-[600] text-soft no-underline hover:bg-sunken hover:text-ink"
+            >
+              <PlatformIcon platform={platform.key} size="sm" class="h-6 w-6" />
+              {platform.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

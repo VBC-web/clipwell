@@ -1,0 +1,181 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'The rules for using Clipwell: permitted public-media downloads, prohibited access bypasses, user responsibilities, availability limits and liability.';
+---
+
+<LegalLayout
+  title="Terms of Service"
+  description={description}
+  path="/terms-of-service/"
+>
+  <p>
+    These Terms of Service govern your use of the Clipwell website and downloader API. By using the
+    service, you agree to these terms. If you do not agree, do not use Clipwell. If you use the
+    service for an organisation, you confirm that you have authority to accept these terms for it.
+  </p>
+
+  <h2>1. What Clipwell provides</h2>
+
+  <p>
+    Clipwell is a technical utility that reads public media pages and downloads the video, audio or
+    caption tracks those pages expose. It supports a limited set of platforms and only operates on
+    public URLs. It is not affiliated with, endorsed by or sponsored by any supported platform.
+  </p>
+
+  <p>
+    The service is provided on an “as available” basis. Features, supported platforms, format
+    availability and limits may change as the underlying sources and infrastructure change.
+  </p>
+
+  <h2>2. Eligibility</h2>
+
+  <p>
+    You must be old enough to enter a binding contract in your jurisdiction and at least 13 years old.
+    If you are under the age of majority where you live, use Clipwell only with the involvement of a
+    parent or guardian. Do not use the service if you are barred from doing so by applicable law.
+  </p>
+
+  <h2>3. Permitted use</h2>
+
+  <p>
+    You may use Clipwell to download public media that you own, that you have permission to download,
+    or that you may lawfully copy under an applicable exception. You may use the site for personal
+    research, archiving, accessibility or other lawful purposes, provided your use complies with
+    copyright law, platform terms and these terms.
+  </p>
+
+  <p>
+    Public visibility does not make content freely reusable. A public video can still be protected by
+    copyright, trademark, privacy or other rights. You are responsible for determining whether your
+    download and any later use are permitted.
+  </p>
+
+  <h2>4. Prohibited use</h2>
+
+  <p>You may not use Clipwell to:</p>
+
+  <ul>
+    <li>access private, deleted, subscriber-only, age-restricted or login-protected content;</li>
+    <li>bypass DRM, encryption, paywalls, authentication, region controls or other access measures;</li>
+    <li>infringe copyright, trademark, privacy, publicity or other rights;</li>
+    <li>harass, stalk, exploit or harm another person, or publish private information;</li>
+    <li>download or distribute sexual content involving minors, malware or illegal material;</li>
+    <li>send automated or bulk requests, bypass rate limits, probe the API or interfere with the service;</li>
+    <li>resell, sublicense or rebrand the service without written permission;</li>
+    <li>misrepresent downloaded media as your own or remove lawful attribution; or</li>
+    <li>violate the terms of the platform whose content you are accessing.</li>
+  </ul>
+
+  <p>
+    We may block requests, restrict access or refuse service when we believe these rules have been
+    broken or when continued processing would create a legal, security or operational risk.
+  </p>
+
+  <h2>5. Your responsibilities</h2>
+
+  <p>
+    You are responsible for the links you submit and for how you use the resulting files. You must
+    not submit credentials, session cookies, private media or links containing sensitive tokens. You
+    are also responsible for keeping your own device, accounts and network secure.
+  </p>
+
+  <p>
+    If you share downloaded material, you are responsible for any required permissions, licences,
+    attribution and royalty obligations. Clipwell does not grant any licence to content it downloads.
+  </p>
+
+  <h2>6. Intellectual property</h2>
+
+  <p>
+    The Clipwell name, interface, design and original site content are protected by the operator’s
+    intellectual-property rights. You may not copy the site wholesale or use its branding in a way
+    that suggests endorsement. Third-party names, logos and media remain the property of their
+    respective owners. Clips and files downloaded through the service are not owned by Clipwell.
+  </p>
+
+  <h2>7. Third-party platforms</h2>
+
+  <p>
+    The service depends on public pages and data from third-party platforms. Their terms, privacy
+    policies and technical behaviour apply to your use of those platforms. Clipwell does not control
+    their availability, accuracy, content or access rules, and is not responsible for a platform’s
+    decision to remove, restrict or authenticate a post.
+  </p>
+
+  <h2>8. Downloads, limits and retention</h2>
+
+  <p>
+    Requests may be subject to rate limits, concurrency limits, file-size limits and processing
+    timeouts. Downloads can fail because a source is private, restricted, unavailable, too large,
+    unsupported or temporarily blocked. Temporary files are deleted automatically after a short
+    period. Clipwell is not a storage service; download your file promptly.
+  </p>
+
+  <h2>9. Disclaimers</h2>
+
+  <p>
+    To the maximum extent permitted by law, Clipwell is provided “as is” and “as available”, without
+    warranties of any kind, express or implied, including fitness for a particular purpose,
+    non-infringement, availability, accuracy or uninterrupted operation. Some jurisdictions do not
+    allow the exclusion of certain warranties, so parts of this section may not apply to you.
+  </p>
+
+  <p>
+    The service does not provide legal advice, and checking whether a download is lawful remains your
+    responsibility. See the <a href="/disclaimer/">Disclaimer</a> and
+    <a href="/copyright-policy/">Copyright Policy</a> for more detail.
+  </p>
+
+  <h2>10. Limitation of liability</h2>
+
+  <p>
+    To the maximum extent permitted by law, the operator and its contributors will not be liable for
+    indirect, incidental, special, consequential or punitive damages, loss of data, loss of profits,
+    loss of reputation, copyright claims arising from your use, or any failure caused by a third-party
+    platform or network. Where liability cannot be excluded, it is limited to the amount you paid to
+    use the service, which is currently zero.
+  </p>
+
+  <p>
+    Nothing in these terms limits liability that cannot lawfully be limited, including liability for
+    fraud or for death or personal injury caused by negligence where applicable law prohibits such a
+    limitation.
+  </p>
+
+  <h2>11. Indemnity</h2>
+
+  <p>
+    To the extent permitted by law, you agree to indemnify and hold harmless the operator from claims,
+    losses and reasonable costs arising out of your misuse of the service, your violation of these
+    terms, or your infringement of another party’s rights.
+  </p>
+
+  <h2>12. Suspension and changes</h2>
+
+  <p>
+    We may suspend, change or discontinue all or part of the service at any time, including when a
+    platform changes its technology or when operating the service becomes impractical. We may revise
+    these terms by updating this page and its date. Continued use after a revision means you accept
+    the revised terms.
+  </p>
+
+  <h2>13. Governing law</h2>
+
+  <p>
+    These terms are governed by the laws applicable in the jurisdiction where the operator is
+    established, without regard to conflict-of-laws rules. Courts in that jurisdiction will have
+    exclusive jurisdiction, except where mandatory consumer law gives you the right to bring a claim
+    elsewhere. If any provision is unenforceable, the remaining provisions stay in effect.
+  </p>
+
+  <h2>14. Contact</h2>
+
+  <p>
+    Questions about these terms: <a href={`mailto:${SITE.legalEmail}`}>{SITE.legalEmail}</a>. General
+    support: <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>. These terms are a
+    practical service agreement, not legal advice.
+  </p>
+</LegalLayout>

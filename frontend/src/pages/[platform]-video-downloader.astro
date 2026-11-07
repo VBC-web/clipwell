@@ -1,0 +1,277 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Downloader from '../components/downloader/Downloader';
+import FaqSection from '../components/FaqSection.astro';
+import Icon from '../components/Icon.astro';
+import RelatedPlatforms from '../components/RelatedPlatforms.astro';
+import PlatformIcon from '../components/PlatformIcon.astro';
+import { PLATFORM_CONTENT } from '../data/platform-content';
+import type { PlatformContent } from '../data/platform-content';
+import { SITE } from '../data/site';
+import { PLATFORMS } from '../lib/platforms';
+import {
+  breadcrumbJsonLd,
+  faqJsonLd,
+  howToJsonLd,
+  webApplicationJsonLd,
+  webPageJsonLd,
+} from '../lib/seo';
+
+export const getStaticPaths = (() => {
+  return Object.values(PLATFORM_CONTENT).map((content) => ({
+    params: { platform: content.key },
+    props: { content },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  content: PlatformContent;
+}
+
+const { content } = Astro.props;
+const platform = PLATFORMS[content.key];
+const path = `/${platform.slug}/`;
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: `${platform.name} downloader` },
+];
+
+const pageJsonLd = [
+  breadcrumbJsonLd(breadcrumbs),
+  webPageJsonLd({
+    name: content.metaTitle,
+    description: content.metaDescription,
+    path,
+    dateModified: '2026-11-07',
+  }),
+  webApplicationJsonLd({
+    name: `${platform.name} Video Downloader — Clipwell`,
+    description: content.metaDescription,
+    path,
+  }),
+  howToJsonLd({
+    name: `How to download public ${platform.name} video`,
+    description: content.intro[0],
+    steps: content.steps,
+  }),
+  faqJsonLd(content.faqs),
+];
+---
+
+<BaseLayout
+  title={content.metaTitle}
+  description={content.metaDescription}
+  path={path}
+  imageAlt={`Clipwell ${platform.name} video downloader`}
+  jsonLd={pageJsonLd}
+>
+  <section class:list={['border-b border-line', platform.colorClass]}>
+    <div class="container-page py-9 md:py-12">
+      <Breadcrumbs items={breadcrumbs} />
+
+      <div class="mt-7 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+        <div>
+          <div class="flex items-center gap-3">
+            <PlatformIcon platform={content.key} size="lg" />
+            <p class="eyebrow">{content.eyebrow}</p>
+          </div>
+
+          <h1 id="page-heading" class="display-page mt-5">
+            <span class="mb-3 block font-sans text-[0.68rem] font-[750] uppercase tracking-[0.14em] text-muted">
+              {platform.name} video downloader
+            </span>
+            {content.headline}{' '}
+            <em class="font-[380] italic text-accent">{content.headlineAccent}</em>
+          </h1>
+
+          <div class="mt-6 max-w-2xl space-y-4">
+            {content.intro.map((paragraph) => (
+              <p class="lede">{paragraph}</p>
+            ))}
+          </div>
+        </div>
+
+        <aside class="self-end lg:justify-self-end" aria-labelledby="glance-heading">
+          <div class="card p-5">
+            <h2 id="glance-heading" class="font-sans text-[0.7rem] font-[750] uppercase tracking-[0.12em] text-muted">
+              At a glance
+            </h2>
+            <ul class="mt-3 space-y-2.5">
+              {content.glance.map((item) => (
+                <li class="flex items-start gap-2.5 text-sm text-soft">
+                  <Icon name="check" class="mt-0.5 h-4 w-4 flex-none text-sage" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="mt-4 border-t border-line pt-3">
+              <p class="text-[0.68rem] font-[700] uppercase tracking-[0.08em] text-muted">Public links only</p>
+              <p class="mt-1 text-xs leading-relaxed text-soft">
+                Private posts, login walls and DRM-protected media are intentionally unsupported.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="mt-9">
+        <Downloader platform={content.key} client:load />
+      </div>
+    </div>
+  </section>
+
+  <div class="container-page pb-4 pt-16 md:pt-20">
+    <section class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16" aria-labelledby="use-heading">
+      <div>
+        <p class="eyebrow">Step by step</p>
+        <h2 id="use-heading" class="display-section mt-3">How to use this {platform.name} downloader</h2>
+        <p class="mt-4 max-w-md text-sm leading-relaxed text-soft">
+          The input is the same each time; the link rules are not. These are the details that
+          matter for {platform.name} specifically.
+        </p>
+        <div class="notice mt-6">
+          <strong class="text-ink">A quick check:</strong> open the link in a private window. If the
+          video does not play there, it is not public and Clipwell cannot retrieve it.
+        </div>
+      </div>
+
+      <ol class="grid">
+        {content.steps.map((step, index) => (
+          <li class="grid grid-cols-[2.5rem_1fr] gap-4 border-t border-line py-6 last:border-b sm:grid-cols-[3.5rem_1fr]">
+            <span class="font-display text-[1.9rem] leading-none text-line-strong">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <div>
+              <h3 class="text-[1.15rem] leading-tight">{step.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-soft">{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section id="features" class="section-rule mt-16 md:mt-20" aria-labelledby="features-heading">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">Available features</p>
+          <h2 id="features-heading" class="display-section mt-3">What works on {platform.name}</h2>
+        </div>
+        <p class="max-w-sm text-sm leading-relaxed text-muted">
+          Feature availability follows the public source. Nothing is added to the menu to make the
+          tool look more capable than it is.
+        </p>
+      </div>
+
+      <div class="mt-8 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-4">
+        {content.features.map((feature) => (
+          <article class="border-t border-line py-5">
+            <h3 class="text-[1.05rem] leading-tight">{feature.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-soft">{feature.body}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="mt-8 rounded-md border border-line bg-surface p-5">
+        <div class="flex items-start gap-3">
+          <Icon name="alert" class="mt-0.5 h-5 w-5 flex-none text-warning" />
+          <div>
+            <h3 class="font-sans text-sm font-[750] text-ink">Platform notes</h3>
+            <ul class="mt-2 grid gap-1.5 sm:grid-cols-3">
+              {content.sourceNotes.map((note) => (
+                <li class="text-xs leading-relaxed text-soft">{note}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-rule mt-16 md:mt-20" aria-labelledby="problems-heading">
+      <div class="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+        <div>
+          <p class="eyebrow">Troubleshooting</p>
+          <h2 id="problems-heading" class="display-section mt-3">Common problems, straight answers</h2>
+          <p class="mt-4 max-w-sm text-sm leading-relaxed text-soft">
+            Most failures are about access, link shape or a platform-side challenge — not the
+            download button.
+          </p>
+        </div>
+        <div class="grid gap-0">
+          {content.problems.map((problem) => (
+            <article class="border-t border-line py-5 last:border-b">
+              <h3 class="flex items-start gap-2 text-[1.02rem] leading-snug">
+                <span class="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-accent" aria-hidden="true"></span>
+                {problem.problem}
+              </h3>
+              <p class="mt-2 pl-3.5 text-sm leading-relaxed text-soft">{problem.solution}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section-rule mt-16 md:mt-20" aria-labelledby="guide-heading">
+      <div class="grid gap-10 lg:grid-cols-[0.5fr_1.5fr] lg:gap-16">
+        <div class="lg:sticky lg:top-28 lg:self-start">
+          <p class="eyebrow">The longer read</p>
+          <h2 id="guide-heading" class="display-section mt-3 !text-[clamp(1.8rem,2.7vw,2.5rem)]">
+            {content.article.title}
+          </h2>
+          <p class="mt-4 text-xs leading-relaxed text-muted">
+            Platform notes reviewed {SITE.lastUpdated}.
+          </p>
+        </div>
+
+        <article class="prose-editorial max-w-2xl">
+          <p class="!text-[1.05rem] text-soft">{content.article.intro}</p>
+          {content.article.sections.map((section) => (
+            <section>
+              <h3>{section.heading}</h3>
+              {section.body.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+              {section.points && (
+                <ul>
+                  {section.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))}
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="container-page pt-16 md:pt-20">
+    <FaqSection
+      items={content.faqs}
+      id="faq"
+      title={`${platform.name} downloader FAQ`}
+      description={`Answers specific to ${platform.name} links, formats, captions and access limits.`}
+    />
+  </div>
+
+  <div class="container-page mt-16 md:mt-20">
+    <RelatedPlatforms current={content.key} />
+  </div>
+
+  <section class="mt-16 border-t border-line bg-accent-soft/55">
+    <div class="container-page flex flex-col gap-6 py-14 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="eyebrow">Another link?</p>
+        <h2 class="display-section mt-3 max-w-xl">Try the {platform.name} downloader with a public post.</h2>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="#downloader" class="btn btn-primary btn-lg">
+          Back to the downloader
+          <Icon name="arrow" class="h-4 w-4" />
+        </a>
+        <a href="/#platforms" class="btn btn-secondary btn-lg">All platforms</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

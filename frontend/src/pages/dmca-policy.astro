@@ -1,0 +1,144 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'How to send a DMCA takedown notice or counter-notification to Clipwell, what information is required, and how the process works.';
+---
+
+<LegalLayout
+  title="DMCA Policy"
+  description={description}
+  path="/dmca-policy/"
+>
+  <p>
+    Clipwell responds to clear notices of claimed copyright infringement under the U.S. Digital
+    Millennium Copyright Act (DMCA) and equivalent processes where applicable. This policy explains
+    how to submit a notice and what happens next. It is written for a service that processes
+    temporary, user-requested public media rather than a permanent public media library.
+  </p>
+
+  <p>
+    Before sending a notice, confirm that the work is actually yours or that you are authorised to act
+    for the owner. A public post is not automatically free to copy, but a downloader link is also not
+    the same as a permanent copy hosted by Clipwell. If your concern is the original post, platform
+    copyright tools are usually the faster route.
+  </p>
+
+  <h2>Designated copyright contact</h2>
+
+  <div class="rounded-md border border-line bg-surface p-4 not-prose">
+    <p class="text-xs font-[750] uppercase tracking-[0.1em] text-muted">Copyright agent</p>
+    <p class="mt-2 text-sm font-[700] text-ink">Clipwell — Copyright Agent</p>
+    <p class="mt-1 text-sm text-soft">
+      Email: <a href={`mailto:${SITE.dmcaEmail}`} class="font-[650] text-accent-ink underline decoration-accent/30 underline-offset-2">{SITE.dmcaEmail}</a>
+    </p>
+    <p class="mt-2 text-xs leading-relaxed text-muted">
+      Use the subject line “DMCA notice”. For postal correspondence, email first to confirm the
+      current agent address and registration details. Do not send original documents by post without
+      confirmation.
+    </p>
+  </div>
+
+  <h2>What a valid notice must include</h2>
+
+  <p>
+    To help the agent review a notice efficiently, include all of the following. A substantially
+    complete notice under 17 U.S.C. § 512(c)(3) generally needs:
+  </p>
+
+  <ol>
+    <li>
+      A physical or electronic signature of the copyright owner or a person authorised to act on the
+      owner’s behalf.
+    </li>
+    <li>
+      Identification of the copyrighted work claimed to have been infringed. If multiple works are
+      covered, provide a representative list.
+    </li>
+    <li>
+      Identification of the material claimed to be infringing, with enough information to locate it.
+      For Clipwell, include the specific job or download URL if it is still active, the source
+      platform URL, and the approximate time of the request. A bare platform profile is not enough.
+    </li>
+    <li>
+      Your name, mailing address, telephone number and email address so the agent can contact you.
+    </li>
+    <li>
+      A statement that you have a good-faith belief that use of the material is not authorised by the
+      copyright owner, its agent or the law.
+    </li>
+    <li>
+      A statement, under penalty of perjury, that the information in the notice is accurate and that
+      you are the copyright owner or authorised to act on the owner’s behalf.
+    </li>
+  </ol>
+
+  <p>
+    Incomplete notices may be returned for clarification. We may also ask for a link or timestamp
+    because temporary download files can expire quickly. Never send your account password, session
+    cookie or private media as part of a notice.
+  </p>
+
+  <h2>What happens after a notice</h2>
+
+  <p>
+    After reviewing a substantially complete notice, the operator may remove or disable access to the
+    identified material, block the relevant request, or take other reasonable steps. Where
+    appropriate, the notice may be forwarded to the person responsible for the request and to the
+    relevant platform or hosting provider.
+  </p>
+
+  <p>
+    Because the service is designed around short-lived files, the practical response may be to ensure
+    the job is deleted and the link is disabled. Clipwell does not control the original post on the
+    source platform and cannot remove it there.
+  </p>
+
+  <h2>Counter-notification</h2>
+
+  <p>
+    If material was removed or disabled because of a notice and you believe the removal resulted from
+    a mistake or misidentification, you may send a counter-notification to
+    <a href={`mailto:${SITE.dmcaEmail}`}>{SITE.dmcaEmail}</a>. A counter-notification generally
+    includes:
+  </p>
+
+  <ol>
+    <li>your physical or electronic signature;</li>
+    <li>identification of the material that was removed or disabled and the location where it appeared before removal;</li>
+    <li>a statement under penalty of perjury that you have a good-faith belief the material was removed as a result of mistake or misidentification;</li>
+    <li>your name, address and telephone number; and</li>
+    <li>a statement consenting to the jurisdiction of the federal district court for your address (or another appropriate jurisdiction) and agreeing to accept service of process from the person who submitted the original notice or their agent.</li>
+  </ol>
+
+  <p>
+    A counter-notification is a legal document with consequences. Do not use one to delay a valid
+    claim or to protect material you do not have the right to distribute.
+  </p>
+
+  <h2>Repeat infringers</h2>
+
+  <p>
+    The operator may block users, IP addresses or requests associated with repeated infringement or
+    abuse. Access may be restricted even without a formal notice when necessary to protect the
+    service, comply with the law or prevent further harm.
+  </p>
+
+  <h2>Misrepresentation</h2>
+
+  <p>
+    Knowingly making a material misrepresentation in a notice or counter-notification can lead to
+    liability for damages, including costs and attorney’s fees under 17 U.S.C. § 512(f). If you are
+    unsure whether you own a work or are authorised to act, consult a lawyer before submitting.
+  </p>
+
+  <h2>Other laws and jurisdictions</h2>
+
+  <p>
+    Equivalent copyright or content-reporting rules may apply outside the United States. If you are
+    unsure which process fits, write to <a href={`mailto:${SITE.legalEmail}`}>{SITE.legalEmail}</a> with
+    a short summary and the relevant URLs. This page describes the operator’s process and is not legal
+    advice.
+  </p>
+</LegalLayout>

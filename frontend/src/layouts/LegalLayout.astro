@@ -1,0 +1,104 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { LEGAL_LINKS, SITE } from '../data/site';
+import { breadcrumbJsonLd, webPageJsonLd } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  sectionLabel?: string;
+  updated?: string;
+  type?: 'WebPage' | 'AboutPage' | 'ContactPage';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  path,
+  sectionLabel = 'Legal & trust',
+  updated = SITE.lastUpdated,
+  type = 'WebPage',
+  jsonLd,
+} = Astro.props;
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: title },
+];
+
+const pageJsonLd = [
+  breadcrumbJsonLd(breadcrumbs),
+  webPageJsonLd({
+    name: title,
+    description,
+    path,
+    type,
+    dateModified: '2026-11-07',
+  }),
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+];
+
+const policyLinks = [
+  { label: 'About Clipwell', href: '/about/' },
+  { label: 'Contact', href: '/contact/' },
+  ...LEGAL_LINKS.filter((link) => link.label !== 'Contact'),
+];
+---
+
+<BaseLayout title={`${title} — Clipwell`} description={description} path={path} jsonLd={pageJsonLd}>
+  <section class="border-b border-line bg-surface/45">
+    <div class="container-page py-10 md:py-14">
+      <Breadcrumbs items={breadcrumbs} />
+      <p class="eyebrow mt-7">{sectionLabel}</p>
+      <h1 class="display-page mt-4 max-w-4xl">{title}</h1>
+      <p class="lede mt-5 max-w-2xl">{description}</p>
+      <p class="mt-4 text-xs text-muted">Last updated: {updated}</p>
+    </div>
+  </section>
+
+  <div class="container-page grid gap-10 py-12 md:py-16 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-16">
+    <aside class="lg:sticky lg:top-28 lg:self-start">
+      <nav aria-label="Policy pages">
+        <h2 class="text-[0.68rem] font-[750] uppercase tracking-[0.13em] text-muted">Policies & information</h2>
+        <ul class="mt-3 grid gap-0.5">
+          {policyLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={Astro.url.pathname === link.href ? 'page' : undefined}
+                class:list={[
+                  'block rounded-sm px-2.5 py-2 text-[0.82rem] font-[600] no-underline transition-colors',
+                  Astro.url.pathname === link.href
+                    ? 'bg-accent-soft text-accent-ink'
+                    : 'text-soft hover:bg-sunken hover:text-ink',
+                ]}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="mt-6 rounded-md border border-line bg-surface p-4">
+        <p class="text-[0.68rem] font-[750] uppercase tracking-[0.1em] text-muted">Contact</p>
+        <a
+          href={`mailto:${SITE.supportEmail}`}
+          class="mt-2 block break-all text-xs font-[650] text-accent-ink underline decoration-accent/30 underline-offset-2 hover:decoration-accent"
+        >
+          {SITE.supportEmail}
+        </a>
+        <p class="mt-2 text-[0.7rem] leading-relaxed text-muted">
+          For privacy, copyright or DMCA matters, use the dedicated address on the Contact page.
+        </p>
+      </div>
+    </aside>
+
+    <article class="prose-editorial max-w-3xl">
+      <slot />
+    </article>
+  </div>
+</BaseLayout>

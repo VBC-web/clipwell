@@ -1,0 +1,46 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      ENABLE_DOCS: ${ENABLE_DOCS:-false}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      TEMP_DIR: /tmp/clipwell-api
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
+      MAX_CONCURRENT_JOBS: ${MAX_CONCURRENT_JOBS:-2}
+      MAX_PENDING_JOBS: ${MAX_PENDING_JOBS:-20}
+      EXTRACT_TIMEOUT_SECONDS: ${EXTRACT_TIMEOUT_SECONDS:-60}
+      JOB_TIMEOUT_SECONDS: ${JOB_TIMEOUT_SECONDS:-600}
+      DOWNLOAD_TTL_SECONDS: ${DOWNLOAD_TTL_SECONDS:-900}
+    volumes:
+      - clipwell-temp:/tmp/clipwell-api
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://clipwell.app}
+        PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL:-}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  clipwell-temp:

@@ -1,0 +1,298 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Downloader from '../components/downloader/Downloader';
+import PlatformIcon from '../components/PlatformIcon.astro';
+import PlatformCard from '../components/PlatformCard.astro';
+import FaqSection from '../components/FaqSection.astro';
+import Icon from '../components/Icon.astro';
+import { HOME_FAQS, SITE } from '../data/site';
+import { PLATFORM_KEYS, PLATFORMS } from '../lib/platforms';
+import { faqJsonLd, webApplicationJsonLd } from '../lib/seo';
+
+const platforms = PLATFORM_KEYS.map((key) => PLATFORMS[key]);
+
+const features = [
+  {
+    icon: 'film' as const,
+    title: 'Real formats only',
+    body: 'The quality list is built from the stream data the platform returns for that one post. No invented 4K labels, no upscaled files dressed up as originals.',
+  },
+  {
+    icon: 'captions' as const,
+    title: 'Captions without guesswork',
+    body: 'Creator-provided and auto-generated caption tracks are labelled separately. Load them, copy the text, or save SRT and TXT files when the source provides them.',
+  },
+  {
+    icon: 'audio' as const,
+    title: 'Audio when it exists',
+    body: 'Choose an audio-only export only when a usable audio stream is present. MP3 and original M4A options are never presented as a promise the source cannot keep.',
+  },
+  {
+    icon: 'scan' as const,
+    title: 'Platform-aware links',
+    body: 'The URL is checked in the browser and again on the server. Paste an Instagram link into the TikTok page and you get a direct route to the right downloader.',
+  },
+  {
+    icon: 'shield' as const,
+    title: 'Public media only',
+    body: 'No credentials, cookies, private posts, age-gated content or DRM circumvention. If a platform requires a sign-in, Clipwell stops rather than pretending to work.',
+  },
+  {
+    icon: 'alert' as const,
+    title: 'Honest failure states',
+    body: 'Platforms change, block data-centre traffic and expire media. When that happens you get a specific explanation instead of a progress bar that never finishes.',
+  },
+];
+
+const pageJsonLd = [
+  webApplicationJsonLd({
+    name: 'Clipwell — Multi-platform Video Downloader',
+    description: SITE.defaultDescription,
+    path: '/',
+  }),
+  faqJsonLd(HOME_FAQS),
+];
+---
+
+<BaseLayout
+  path="/"
+  jsonLd={pageJsonLd}
+  imageAlt="Clipwell — a clean downloader for public video, audio and captions"
+>
+  <section class="relative overflow-hidden border-b border-line" aria-labelledby="hero-heading">
+    <div class="grid-paper pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="container-page relative py-12 md:py-16 lg:py-20">
+      <div class="grid items-start gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
+        <div class="animate-rise lg:pt-3">
+          <p class="eyebrow">Public media, saved cleanly</p>
+          <h1 id="hero-heading" class="display-hero mt-5">
+            Save the video.<br />
+            <em class="font-[380] italic text-accent">Skip the noise.</em>
+          </h1>
+          <p class="lede mt-6 max-w-xl">
+            Paste a public link from YouTube, Instagram, TikTok, Twitch, X, Facebook or Kick.
+            Clipwell shows the real formats, captions and post details — and says so when a
+            platform refuses.
+          </p>
+
+          <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.78rem] font-[650] text-soft">
+            <span class="inline-flex items-center gap-1.5">
+              <Icon name="shield" class="h-4 w-4 text-sage" />
+              No account
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <Icon name="lock" class="h-4 w-4 text-sage" />
+              No DRM workarounds
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <Icon name="clock" class="h-4 w-4 text-sage" />
+              Temporary files
+            </span>
+          </div>
+
+          <div class="mt-8 border-t border-line pt-5">
+            <p class="text-[0.66rem] font-[750] uppercase tracking-[0.14em] text-muted">
+              Built for public links from
+            </p>
+            <div class="mt-3 flex flex-wrap items-center gap-2.5">
+              {platforms.map((platform) => (
+                <a
+                  href={`/${platform.slug}/`}
+                  class="group inline-flex items-center gap-1.5 text-[0.76rem] font-[650] text-soft no-underline transition-colors hover:text-ink"
+                  title={`${platform.name} downloader`}
+                >
+                  <PlatformIcon platform={platform.key} size="sm" class="h-6 w-6" />
+                  {platform.shortName}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="animate-rise [animation-delay:80ms]">
+          <Downloader client:load />
+          <p class="mt-3 px-1 text-center text-[0.68rem] leading-relaxed text-muted sm:text-left">
+            By using Clipwell you confirm you have the right to download the linked media. Public
+            visibility does not transfer copyright.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="platforms" class="container-page scroll-mt-24 py-20 md:py-24" aria-labelledby="platforms-heading">
+    <div class="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end lg:gap-16">
+      <div>
+        <p class="eyebrow">Supported platforms</p>
+        <h2 id="platforms-heading" class="display-section mt-3">
+          Seven platforms.<br />Seven direct routes.
+        </h2>
+      </div>
+      <div class="max-w-xl lg:justify-self-end">
+        <p class="lede">
+          Each downloader understands its platform’s link shapes and limitations. No generic form
+          that quietly fails on the second platform.
+        </p>
+        <p class="mt-3 text-sm leading-relaxed text-muted">
+          Pick a platform for its own guide, common problems and FAQ. The universal field above
+          detects the right one automatically.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {platforms.map((platform) => (
+        <PlatformCard platform={platform.key} />
+      ))}
+      <a
+        href="#downloader"
+        class="group flex min-h-[10.5rem] flex-col justify-between rounded-lg border border-dashed border-line-strong bg-transparent p-4 no-underline transition-colors hover:border-accent hover:bg-accent-soft/30"
+      >
+        <span class="grid h-10 w-10 place-items-center rounded-sm border border-line bg-surface text-accent">
+          <Icon name="link" class="h-4 w-4" />
+        </span>
+        <span>
+          <span class="block font-display text-[1.1rem] leading-tight text-ink">Not sure yet?</span>
+          <span class="mt-1 block text-xs leading-relaxed text-muted">
+            Paste the link above. Clipwell will identify the platform for you.
+          </span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="border-y border-line bg-surface/55 scroll-mt-24" aria-labelledby="how-heading">
+    <div class="container-page py-20 md:py-24">
+      <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div>
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-heading" class="display-section mt-3">One paste.<br />A clear next step.</h2>
+          <p class="mt-4 max-w-md text-sm leading-relaxed text-soft">
+            Clipwell does the link checking before the backend does any fetching. That one decision
+            keeps the workflow fast, predictable and safer.
+          </p>
+        </div>
+
+        <ol class="grid gap-0">
+          <li class="grid grid-cols-[3rem_1fr] gap-4 border-t border-line py-6 sm:grid-cols-[4rem_1fr] sm:gap-6">
+            <span class="font-display text-[2.1rem] leading-none text-line-strong">01</span>
+            <div>
+              <h3 class="text-[1.25rem] leading-tight">Copy a public post link</h3>
+              <p class="mt-2 max-w-lg text-sm leading-relaxed text-soft">
+                Use the platform’s Copy link action on the video itself. A profile, playlist or
+                search page does not identify one piece of media, so Clipwell rejects it early.
+              </p>
+            </div>
+          </li>
+          <li class="grid grid-cols-[3rem_1fr] gap-4 border-t border-line py-6 sm:grid-cols-[4rem_1fr] sm:gap-6">
+            <span class="font-display text-[2.1rem] leading-none text-line-strong">02</span>
+            <div>
+              <h3 class="text-[1.25rem] leading-tight">Let the detector check the route</h3>
+              <p class="mt-2 max-w-lg text-sm leading-relaxed text-soft">
+                The hostname and media path are validated in your browser. If the platform does not
+                match the page, you get a suggestion and a button to the correct downloader — with
+                your link already carried across.
+              </p>
+              <div class="mt-4 flex max-w-md flex-wrap items-center gap-2 rounded-md border border-line bg-canvas p-2.5 font-mono text-[0.68rem] text-muted">
+                <span class="truncate">instagram.com/reel/…</span>
+                <span class="ml-auto inline-flex shrink-0 items-center gap-1 rounded-xs bg-success-soft px-1.5 py-0.5 font-sans text-[0.62rem] font-[700] uppercase tracking-[0.05em] text-success">
+                  <span class="live-dot" aria-hidden="true"></span>
+                  Instagram detected
+                </span>
+              </div>
+            </div>
+          </li>
+          <li class="grid grid-cols-[3rem_1fr] gap-4 border-y border-line py-6 sm:grid-cols-[4rem_1fr] sm:gap-6">
+            <span class="font-display text-[2.1rem] leading-none text-line-strong">03</span>
+            <div>
+              <h3 class="text-[1.25rem] leading-tight">Choose what the source really offers</h3>
+              <p class="mt-2 max-w-lg text-sm leading-relaxed text-soft">
+                Review the thumbnail, creator and description, then pick a listed video quality,
+                audio format or caption track. Progress is visible, errors are specific, and
+                temporary files are cleaned up automatically.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="container-page scroll-mt-24 py-20 md:py-24" aria-labelledby="features-heading">
+    <div class="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+      <div class="lg:sticky lg:top-28 lg:self-start">
+        <p class="eyebrow">What you get</p>
+        <h2 id="features-heading" class="display-section mt-3">Useful where it counts. Quiet everywhere else.</h2>
+        <p class="mt-4 max-w-sm text-sm leading-relaxed text-soft">
+          A downloader is a utility, not a place to spend time. The details you need are visible;
+          the clutter stays out of the way.
+        </p>
+        <div class="mt-6 rounded-md border border-line bg-surface p-4">
+          <p class="text-[0.68rem] font-[750] uppercase tracking-[0.1em] text-muted">A deliberate omission</p>
+          <p class="mt-2 text-xs leading-relaxed text-soft">
+            There are no download counters, star ratings or testimonials on this site. They would be
+            decoration, not evidence.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid gap-x-8 gap-y-0 sm:grid-cols-2">
+        {features.map((feature) => (
+          <article class="border-t border-line py-6">
+            <span class="icon-tile">
+              <Icon name={feature.icon} class="h-[1.1rem] w-[1.1rem]" />
+            </span>
+            <h3 class="mt-4 text-[1.12rem] leading-tight">{feature.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-soft">{feature.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-line bg-sage-soft/50" aria-labelledby="limits-heading">
+    <div class="container-page py-16 md:py-20">
+      <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
+        <div>
+          <p class="eyebrow !text-sage">What we won’t do</p>
+          <h2 id="limits-heading" class="display-section mt-3 max-w-xl">
+            If it needs a login or a DRM key, the answer is no.
+          </h2>
+        </div>
+        <div class="max-w-xl">
+          <p class="text-sm leading-relaxed text-soft">
+            Clipwell reads public pages and downloads the media those pages expose. It does not
+            accept your cookies, guess private endpoints, record live streams, strip watermarks or
+            break encryption. That makes the boundary simple: if you cannot open the post in a
+            private browser window, the downloader cannot process it either.
+          </p>
+          <div class="mt-5 flex flex-wrap gap-2">
+            <a href="/copyright-policy/" class="tag tag-success no-underline">Respect creators</a>
+            <a href="/privacy-policy/" class="tag no-underline">Privacy Policy</a>
+            <a href="/terms-of-service/" class="tag no-underline">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-page py-20 md:py-24">
+    <FaqSection items={HOME_FAQS} id="faq" />
+  </div>
+
+  <section class="border-t border-line bg-accent-soft/55" aria-labelledby="cta-heading">
+    <div class="container-page flex flex-col gap-6 py-14 md:flex-row md:items-center md:justify-between md:py-16">
+      <div>
+        <p class="eyebrow">One link. No detours.</p>
+        <h2 id="cta-heading" class="display-section mt-3 max-w-2xl">Have a public video in mind?</h2>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="#downloader" class="btn btn-primary btn-lg">
+          Start with a link
+          <Icon name="arrow" class="h-4 w-4" />
+        </a>
+        <a href="/#platforms" class="btn btn-secondary btn-lg">Browse platforms</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

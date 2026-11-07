@@ -1,0 +1,39 @@
+---
+interface Props {
+  href?: string;
+  compact?: boolean;
+  class?: string;
+}
+
+const { href = '/', compact = false, class: className = '' } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['group inline-flex items-center gap-2.5 no-underline', className]}
+  aria-label="Clipwell home"
+>
+  <span
+    class="grid h-8 w-8 flex-none place-items-center rounded-[0.5rem] bg-accent text-[#fffaf5] shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5"
+  >
+    <svg viewBox="0 0 32 32" class="h-[1.15rem] w-[1.15rem]" aria-hidden="true">
+      <path
+        d="M16 7.5v10.2m0 0 4.2-4.2M16 17.7l-4.2-4.2M9 23.4h14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+  </span>
+  {
+    !compact && (
+      <span class="flex flex-col leading-none">
+        <span class="text-[1.08rem] font-[750] tracking-[-0.04em] text-ink">clipwell</span>
+        <span class="mt-1 hidden text-[0.52rem] font-[700] uppercase tracking-[0.19em] text-muted sm:block">
+          public media, saved
+        </span>
+      </span>
+    )
+  }
+</a>

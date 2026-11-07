@@ -1,0 +1,29 @@
+---
+import PlatformCard from './PlatformCard.astro';
+import { relatedPlatforms, type PlatformKey } from '../lib/platforms';
+
+interface Props {
+  current: PlatformKey;
+  count?: number;
+}
+
+const { current, count = 4 } = Astro.props;
+const platforms = relatedPlatforms(current, count);
+---
+
+<section class="section-rule" aria-labelledby="related-heading">
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p class="eyebrow">Keep going</p>
+      <h2 id="related-heading" class="display-section mt-3 !text-[clamp(1.9rem,3vw,2.7rem)]">
+        Other downloaders
+      </h2>
+    </div>
+    <a href="/#platforms" class="btn btn-ghost btn-sm">See all seven</a>
+  </div>
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    {platforms.map((platform) => (
+      <PlatformCard platform={platform.key} compact />
+    ))}
+  </div>
+</section>

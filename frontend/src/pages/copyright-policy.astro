@@ -1,0 +1,120 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'Clipwell’s copyright approach: public-media limits, user responsibility, infringement reporting, repeat-infringer policy and links to the DMCA process.';
+---
+
+<LegalLayout
+  title="Copyright Policy"
+  description={description}
+  path="/copyright-policy/"
+>
+  <p>
+    Clipwell respects copyright and the people who create the media people want to save. The service
+    is not a library and does not claim ownership of downloaded material. It is a short-lived
+    technical tool that processes links supplied by users.
+  </p>
+
+  <h2>Public access is not permission</h2>
+
+  <p>
+    A public post can be protected by copyright, even when it is visible to everyone. Public
+    visibility does not mean the work is in the public domain, licensed for reuse or free of
+    restrictions. Clipwell does not grant permission to copy, edit, republish or monetise any video,
+    audio, image, caption or other work.
+  </p>
+
+  <p>
+    You may use the service for content you own or have permission to use, or where a valid legal
+    exception applies in your jurisdiction. That determination is yours. If you are unsure, ask the
+    rights holder or seek legal advice.
+  </p>
+
+  <h2>What the service does with media</h2>
+
+  <p>
+    When a user requests a download, Clipwell retrieves the public media from the source platform and
+    writes it to temporary storage for that download. The file is served through a job-specific link
+    and deleted automatically after a short period. Clipwell does not maintain a public catalogue,
+    promote downloaded works or claim a licence over them.
+  </p>
+
+  <p>
+    The service does not remove watermarks, DRM or attribution, and it does not access private
+    content. Users remain responsible for what they submit and how they use the resulting file.
+  </p>
+
+  <h2>If your work appears on a platform</h2>
+
+  <p>
+    If you want a post removed from the platform itself, use the platform’s copyright reporting
+    process first. Clipwell cannot remove content from Instagram, Facebook, YouTube, TikTok, Kick,
+    Twitch or X, and cannot change what those services publish. A Clipwell report concerns a
+    temporary download route or the service itself, not the original post.
+  </p>
+
+  <h2>Reporting copyright infringement to Clipwell</h2>
+
+  <p>
+    If you believe the service has been used to infringe your work, send a notice to
+    <a href={`mailto:${SITE.dmcaEmail}`}>{SITE.dmcaEmail}</a>. The
+    <a href="/dmca-policy/">DMCA Policy</a> describes the required elements for a formal notice under
+    the U.S. Digital Millennium Copyright Act. In general, include:
+  </p>
+
+  <ul>
+    <li>your name and contact information;</li>
+    <li>identification of the copyrighted work you own or are authorised to protect;</li>
+    <li>the specific Clipwell URL or request information at issue, if available;</li>
+    <li>a statement of your good-faith belief that the use is unauthorised;</li>
+    <li>a statement, under penalty of perjury, that the information is accurate and that you are the owner or authorised agent; and</li>
+    <li>your physical or electronic signature.</li>
+  </ul>
+
+  <p>
+    Because downloads are temporary, a job link may have expired before a notice is reviewed. Do not
+    send passwords, cookies, private media or unrelated personal information. We may ask for
+    clarification if a notice is incomplete.
+  </p>
+
+  <h2>Counter-notification</h2>
+
+  <p>
+    If material was removed or access was disabled because of a copyright notice and you believe the
+    removal was a mistake or misidentification, you may send a counter-notification to
+    <a href={`mailto:${SITE.dmcaEmail}`}>{SITE.dmcaEmail}</a> with the elements described in the DMCA
+    Policy. Do not use a counter-notice to avoid a legitimate claim; it carries legal consequences.
+  </p>
+
+  <h2>Repeat infringers</h2>
+
+  <p>
+    Clipwell may restrict or block users, IP addresses or requests associated with repeated
+    infringement, abuse or attempts to bypass access controls. The service may also refuse requests at
+    its discretion where continued processing would create a legal or operational risk.
+  </p>
+
+  <h2>Misrepresentation</h2>
+
+  <p>
+    Knowingly submitting a false infringement notice or counter-notice can create liability for
+    damages, including costs and attorney’s fees. If you are unsure whether you own the rights or are
+    authorised to act, consult a qualified lawyer before submitting a formal notice.
+  </p>
+
+  <h2>Licensing and permissions</h2>
+
+  <p>
+    For content you want to reuse, the cleanest route is usually direct permission from the creator
+    or a clear licence. Save the licence terms with the file. Attribution may be required even when
+    the licence permits commercial use.
+  </p>
+
+  <p>
+    Copyright questions that are not formal notices can go to
+    <a href={`mailto:${SITE.legalEmail}`}>{SITE.legalEmail}</a>. This page explains the operator’s
+    process and is not legal advice.
+  </p>
+</LegalLayout>

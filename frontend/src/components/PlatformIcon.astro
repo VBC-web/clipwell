@@ -1,0 +1,25 @@
+---
+import { PLATFORMS, type PlatformKey } from '../lib/platforms';
+import icons from '../lib/platform-icons.json';
+
+interface Props {
+  platform: PlatformKey;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { platform, size = 'md', class: className = '' } = Astro.props;
+const icon = icons[platform];
+const label = PLATFORMS[platform].name;
+const sizeClass = size === 'lg' ? 'platform-mark-lg' : size === 'sm' ? 'h-7 w-7' : '';
+---
+
+<span
+  class:list={['platform-mark', PLATFORMS[platform].colorClass, sizeClass, className]}
+  role="img"
+  aria-label={`${label} logo`}
+>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d={icon.path}></path>
+  </svg>
+</span>

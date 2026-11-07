@@ -1,0 +1,31 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.astro/
+# Environment
+.env
+.env.local
+.env.production
+frontend/.env
+frontend/.env.production
+backend/.env
+
+.pnpm-store/
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.env
+backend/temp/
+*.pyc
+
+# Tooling
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

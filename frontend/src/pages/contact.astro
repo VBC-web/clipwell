@@ -1,0 +1,102 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'Contact Clipwell for technical support, privacy requests, copyright concerns or DMCA notices. Clear email routes, no ticket maze.';
+
+const contacts = [
+  {
+    label: 'Technical support',
+    email: SITE.supportEmail,
+    body: 'Broken links, unexpected errors, format questions or feedback about the downloader.',
+    subject: 'Clipwell support request',
+  },
+  {
+    label: 'Privacy requests',
+    email: SITE.privacyEmail,
+    body: 'Questions about temporary files, rate-limit data or a privacy or data-protection request.',
+    subject: 'Clipwell privacy request',
+  },
+  {
+    label: 'Legal & copyright',
+    email: SITE.legalEmail,
+    body: 'Licensing, terms, platform-policy or general copyright questions that are not DMCA notices.',
+    subject: 'Clipwell legal enquiry',
+  },
+  {
+    label: 'DMCA notices',
+    email: SITE.dmcaEmail,
+    body: 'Formal copyright takedown notices. Read the DMCA Policy first and include every required element.',
+    subject: 'DMCA notice',
+  },
+];
+---
+
+<LegalLayout
+  title="Contact Us"
+  description={description}
+  path="/contact/"
+  sectionLabel="Get in touch"
+  type="ContactPage"
+>
+  <p>
+    Clipwell is a small operation, so contact runs on email rather than a ticket dashboard. Choose the
+    route below that matches your reason for writing. Using the right address helps your message reach
+    the person who can act on it.
+  </p>
+
+  <div class="not-prose mt-7 grid gap-3 sm:grid-cols-2">
+    {contacts.map((contact) => (
+      <div class="rounded-md border border-line bg-surface p-4">
+        <h2 class="font-sans text-[0.8rem] font-[750] text-ink">{contact.label}</h2>
+        <a
+          href={`mailto:${contact.email}?subject=${encodeURIComponent(contact.subject)}`}
+          class="mt-1 block break-all text-xs font-[650] text-accent-ink underline decoration-accent/30 underline-offset-2 hover:decoration-accent"
+        >
+          {contact.email}
+        </a>
+        <p class="mt-2 text-xs leading-relaxed text-soft">{contact.body}</p>
+      </div>
+    ))}
+  </div>
+
+  <h2>What to include in a support email</h2>
+
+  <ul>
+    <li>The public URL you submitted, if it is safe to share.</li>
+    <li>The platform and the exact error message you saw.</li>
+    <li>Whether the link opens in a private browser window without signing in.</li>
+    <li>Your browser and device, if the problem looks like an interface issue.</li>
+    <li>The approximate time of the attempt, including your time zone.</li>
+  </ul>
+
+  <p>
+    A screenshot can help, but crop out personal information. Do not send passwords, session cookies,
+    authentication tokens or private media. Clipwell never asks for your login credentials, and you
+    should not send them to any downloader.
+  </p>
+
+  <h2>What to include in a copyright or privacy request</h2>
+
+  <p>
+    For copyright matters, follow the requirements in the <a href="/dmca-policy/">DMCA Policy</a> and
+    include the specific URL, the work you own, your contact details and a good-faith statement. For
+    privacy requests, tell us the type of request and any detail that helps identify the relevant
+    server request without exposing unnecessary personal information.
+  </p>
+
+  <h2>Response expectations</h2>
+
+  <p>
+    Messages are reviewed in the order received. Response times depend on volume and the complexity
+    of the issue, and urgent legal or safety matters are prioritised. Automated replies and vague
+    “we’ll get back to you” promises would not add much; a real reply may simply take time.
+  </p>
+
+  <p>
+    Before writing, the <a href="/#faq">homepage FAQ</a> and the individual platform pages cover the
+    most common causes of a failed download, including private content, bot checks, expired posts and
+    live streams.
+  </p>
+</LegalLayout>

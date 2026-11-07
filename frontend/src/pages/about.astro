@@ -1,0 +1,93 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+import { PLATFORM_KEYS, PLATFORMS } from '../lib/platforms';
+
+const platforms = PLATFORM_KEYS.map((key) => PLATFORMS[key]);
+const description =
+  'Clipwell is a focused public-media downloader built around honest formats, clear limits and temporary processing.';
+---
+
+<LegalLayout
+  title="About Clipwell"
+  description={description}
+  path="/about/"
+  sectionLabel="The project"
+  type="AboutPage"
+>
+  <p>
+    Clipwell is a small, deliberate web utility for saving public video, audio and captions. It
+    supports seven platforms: Instagram, Facebook, YouTube, TikTok, Kick, Twitch and X. It does not
+    require an account, and it does not pretend to reach content that sits behind a login.
+  </p>
+
+  <p>
+    The project began with a simple frustration: most downloader sites are either confusing walls of
+    buttons or they promise formats the source never had. A 4K badge on a 480p video is not a
+    feature. It is a broken expectation. Clipwell is built to read the public source, show the real
+    options, and give a useful explanation when the platform says no.
+  </p>
+
+  <h2>What the product believes</h2>
+
+  <p>
+    A downloader should be quick to leave. There is no feed, no media library and no reason to create
+    an account. The interface shows one link, one result and the formats attached to that result.
+  </p>
+
+  <ul>
+    <li><strong>Real availability beats a long menu.</strong> Quality options are generated from the source, not a fixed marketing list.</li>
+    <li><strong>Public means public.</strong> Private posts, login walls, age gates and DRM-protected media are not supported.</li>
+    <li><strong>Failure should be specific.</strong> Bot checks, region locks, expired posts and unsupported URLs get different messages because they require different actions.</li>
+    <li><strong>Data should not linger.</strong> Download files are held in temporary storage and removed automatically.</li>
+  </ul>
+
+  <h2>How the service is built</h2>
+
+  <p>
+    The frontend is a statically generated Astro site with React only where interaction is needed.
+    The downloader API is a separate FastAPI service that validates links, enforces rate limits and
+    calls <code>yt-dlp</code> for public metadata and media. FFmpeg handles audio extraction and
+    container preparation. The two halves can be deployed and scaled independently.
+  </p>
+
+  <p>
+    Keeping the API separate is practical, not ornamental. It lets the public site stay fast and
+    cacheable while the processing service carries its own concurrency, file-size and cleanup limits.
+    It also makes the security boundary easier to reason about: the browser never receives backend
+    credentials, and the backend only accepts hostnames on a small allowlist.
+  </p>
+
+  <h2>What Clipwell does not do</h2>
+
+  <p>
+    Clipwell does not bypass DRM, authenticate as you, accept session cookies, download private
+    content, record live streams, strip watermarks or archive chat. It does not claim to be affiliated
+    with any platform. It does not offer legal permission to reuse someone else’s work.
+  </p>
+
+  <p>
+    Those limits are part of the design. A tool that quietly crosses them would be harder to trust
+    and harder to operate responsibly. If you need content you can only reach with an account, use
+    the platform’s own features or contact the rights holder.
+  </p>
+
+  <h2>Platforms covered</h2>
+
+  <ul>
+    {platforms.map((platform) => (
+      <li>
+        <a href={`/${platform.slug}/`}>{platform.name} video downloader</a> — public links only.
+      </li>
+    ))}
+  </ul>
+
+  <h2>Contact and corrections</h2>
+
+  <p>
+    Platform behaviour changes frequently. If a guide is out of date or a public link fails in a way
+    the error message does not explain, write to
+    <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a> with the link, the platform, the
+    exact message and the time of the attempt. Do not send passwords, cookies or private media.
+  </p>
+</LegalLayout>

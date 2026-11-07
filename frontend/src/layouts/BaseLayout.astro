@@ -1,0 +1,115 @@
+---
+import SEO from '../components/SEO.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+import { SITE } from '../data/site';
+import { SITE_URL } from '../lib/seo';
+
+interface Props {
+  title?: string;
+  description?: string;
+  path: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  bodyClass?: string;
+}
+
+const {
+  title = SITE.defaultTitle,
+  description = SITE.defaultDescription,
+  path,
+  image,
+  imageAlt,
+  type = 'website',
+  noindex = false,
+  publishedTime,
+  modifiedTime,
+  jsonLd,
+  bodyClass = '',
+} = Astro.props;
+
+const globalJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: SITE.name,
+      url: SITE_URL,
+      logo: `${SITE_URL}/favicon.svg`,
+      email: SITE.supportEmail,
+      description: SITE.description,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE.name,
+      description: SITE.description,
+      inLanguage: 'en',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+  ],
+};
+
+const pageJsonLd = jsonLd
+  ? Array.isArray(jsonLd)
+    ? [globalJsonLd, ...jsonLd]
+    : [globalJsonLd, jsonLd]
+  : [globalJsonLd];
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f5f3ec" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('clipwell-theme');
+          var dark = stored
+            ? stored === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (error) {
+          // A theme is a preference, not a requirement for rendering.
+        }
+      })();
+    </script>
+    <SEO
+      title={title}
+      description={description}
+      path={path}
+      image={image}
+      imageAlt={imageAlt}
+      type={type}
+      noindex={noindex}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      jsonLd={pageJsonLd}
+    />
+  </head>
+  <body class:list={['min-h-screen bg-canvas text-ink antialiased', bodyClass]}>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

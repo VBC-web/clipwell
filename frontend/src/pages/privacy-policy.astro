@@ -1,0 +1,190 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'How Clipwell handles URLs, temporary media files, rate-limit data, server logs and contact emails. No accounts, no tracking cookies, no sold data.';
+---
+
+<LegalLayout
+  title="Privacy Policy"
+  description={description}
+  path="/privacy-policy/"
+>
+  <p>
+    This policy explains what Clipwell processes when you use the website and downloader, why it is
+    processed, and how long it is kept. It applies to the public Clipwell website and its downloader
+    API. It does not apply to the platforms you link to; those services have their own privacy
+    policies.
+  </p>
+
+  <p>
+    Clipwell does not require an account. You can use the core downloader without giving a name,
+    email address or payment detail. The service does, however, receive the media URL you submit and
+    the technical information needed to process it safely.
+  </p>
+
+  <h2>Information we process</h2>
+
+  <h3>Links and public media information</h3>
+
+  <p>
+    When you submit a URL, the backend receives the link and validates its hostname against a
+    supported-platform allowlist. It then requests public page and media metadata from the platform,
+    such as the title, uploader name, description, duration, thumbnail URL, available formats and
+    caption tracks. This information is used to show the result and create the file you asked for.
+  </p>
+
+  <p>
+    The application does not receive or store your platform password, session cookie or private
+    account data. Do not submit links that contain sign-in tokens or other sensitive query
+    parameters.
+  </p>
+
+  <h3>Technical and security data</h3>
+
+  <p>
+    The API uses your IP address to apply rate limits and prevent abuse. Rate-limit counters are held
+    in memory for a short window and are not used to build a profile. Standard server logs may include
+    the request time, route, response status, IP address and user agent. Those logs are used for
+    security, debugging and capacity planning and are kept according to the hosting environment’s
+    retention settings.
+  </p>
+
+  <h3>Temporary download files</h3>
+
+  <p>
+    Downloaded media, audio and caption files are written to a temporary directory on the downloader
+    server. They are available through a job-specific link for a limited period and are removed
+    automatically. The default retention window is approximately 15 minutes after a job completes,
+    after which the link stops working. The extracted metadata record held in memory expires sooner
+    or around the same time.
+  </p>
+
+  <p>
+    Temporary files are not used to create a searchable library, train a model or serve other users.
+    If the service is interrupted before cleanup runs, the operator’s normal host maintenance and
+    restart procedures remove the temporary workspace.
+  </p>
+
+  <h3>Emails you send</h3>
+
+  <p>
+    If you contact support, privacy or legal addresses, we receive the email address you use, the
+    content of your message and any attachments you choose to send. Do not send passwords, cookies or
+    private media. Correspondence is kept only as long as needed to answer the request and meet legal
+    obligations.
+  </p>
+
+  <h3>Local storage, not tracking cookies</h3>
+
+  <p>
+    The site stores your light or dark theme choice in your browser’s local storage under the key
+    <code>clipwell-theme</code>. It is a preference, not an identifier, and it stays on your device.
+    Clipwell does not set advertising cookies, use cross-site trackers, run analytics scripts or sell
+    personal information. If a future deployment adds analytics, this policy and the site’s consent
+    controls must be updated before it is enabled.
+  </p>
+
+  <h2>Why we process it</h2>
+
+  <ul>
+    <li><strong>Provide the service:</strong> validate the link, fetch public metadata, produce the requested download and report progress.</li>
+    <li><strong>Keep the service available:</strong> enforce request limits, prevent abuse, diagnose failures and manage temporary storage.</li>
+    <li><strong>Protect rights and safety:</strong> respond to copyright complaints, legal requests and security incidents.</li>
+    <li><strong>Comply with law:</strong> retain information where a valid legal obligation applies.</li>
+  </ul>
+
+  <p>
+    Where data protection law requires a legal basis, processing is based on the performance of the
+    service you request, the operator’s legitimate interests in security and reliability, compliance
+    with legal obligations, or consent where it is specifically obtained. You can object to
+    processing based on legitimate interests using the privacy contact below.
+  </p>
+
+  <h2>Sharing and third parties</h2>
+
+  <p>
+    A download request necessarily causes the backend to contact the platform whose URL you supplied.
+    That platform receives the request and may see the backend’s IP address and standard request
+    information, as it would for any visitor. Clipwell does not control the platform’s subsequent
+    processing.
+  </p>
+
+  <p>
+    We may use infrastructure providers for hosting, storage, security and email. They process data
+    on the operator’s behalf under their own service terms. We may also disclose information if
+    required by law, to protect the service or users, or in connection with a reorganisation. We do
+    not sell personal information.
+  </p>
+
+  <h2>Retention</h2>
+
+  <ul>
+    <li><strong>Extraction records:</strong> held in memory briefly so a download job can refer to the selected format, then expired.</li>
+    <li><strong>Download files:</strong> deleted automatically after the short job window, normally within 15 minutes.</li>
+    <li><strong>Rate-limit counters:</strong> reset after the relevant short time window.</li>
+    <li><strong>Server logs:</strong> retained for the short period configured by the hosting provider, unless needed for a specific security or legal investigation.</li>
+    <li><strong>Email:</strong> retained while the request is open and for a reasonable period afterwards for records and legal compliance.</li>
+  </ul>
+
+  <h2>Security</h2>
+
+  <p>
+    Clipwell validates URLs before fetching, restricts the backend to supported platform domains,
+    enforces request and file-size limits, runs processing commands without a shell, and removes
+    temporary files. Production deployments should use HTTPS and keep credentials and environment
+    configuration outside the public frontend. No internet service can promise absolute security, so
+    do not submit sensitive personal data or credentials through the downloader.
+  </p>
+
+  <h2>Your rights</h2>
+
+  <p>
+    Depending on where you live, you may have rights to access, correct, delete, restrict or object to
+    the processing of your personal data, or to receive a portable copy. You may also have the right
+    to complain to your local data-protection authority. Because Clipwell does not maintain user
+    accounts, we may need the approximate time of your request or another detail to locate any
+    relevant log entry.
+  </p>
+
+  <p>
+    Send privacy requests to
+    <a href={`mailto:${SITE.privacyEmail}`}>{SITE.privacyEmail}</a>. We may need to verify that a
+    request relates to you before acting on it. Do not include identity documents unless we ask for
+    them through a secure route.
+  </p>
+
+  <h2>International transfers</h2>
+
+  <p>
+    The service may be hosted or supported in countries other than yours. Where required, the
+    operator should use appropriate safeguards for international transfers, such as standard
+    contractual clauses, and apply the same protections described in this policy.
+  </p>
+
+  <h2>Children</h2>
+
+  <p>
+    Clipwell is a general-audience utility and is not directed to children under 13 (or the minimum
+    digital-consent age in your jurisdiction). We do not knowingly collect personal information from
+    children. If you believe a child has sent personal information, contact us so it can be removed.
+  </p>
+
+  <h2>Changes to this policy</h2>
+
+  <p>
+    This policy may be updated when the service, infrastructure or legal requirements change. The
+    date at the top of the page shows the latest revision. Material changes should be communicated on
+    the site before they take effect where practical.
+  </p>
+
+  <h2>Contact</h2>
+
+  <p>
+    Privacy questions and requests:
+    <a href={`mailto:${SITE.privacyEmail}`}>{SITE.privacyEmail}</a>. General support:
+    <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>. This policy is a transparency
+    statement, not legal advice.
+  </p>
+</LegalLayout>

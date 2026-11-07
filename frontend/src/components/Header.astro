@@ -1,0 +1,183 @@
+---
+import Logo from './Logo.astro';
+import { NAV_LINKS, LEGAL_LINKS } from '../data/site';
+import { PLATFORMS } from '../lib/platforms';
+
+const pathname = Astro.url.pathname;
+const allPlatforms = Object.values(PLATFORMS);
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-line/90 bg-canvas/92 backdrop-blur-md supports-[backdrop-filter]:bg-canvas/80"
+  data-site-header
+>
+  <div class="container-page flex h-[4.5rem] items-center justify-between gap-4">
+    <Logo />
+
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+      {
+        NAV_LINKS.map((link) => {
+          const isActive = link.href === '/about/' && pathname === '/about/';
+          return (
+            <a
+              href={link.href}
+              class:list={[
+                'rounded-sm px-3 py-2 text-[0.82rem] font-[650] no-underline transition-colors',
+                isActive ? 'text-accent-ink' : 'text-soft hover:bg-sunken hover:text-ink',
+              ]}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+      <a
+        href="/#downloader"
+        class="rounded-sm px-3 py-2 text-[0.82rem] font-[650] text-soft no-underline transition-colors hover:bg-sunken hover:text-ink"
+      >
+        Downloader
+      </a>
+    </nav>
+
+    <div class="flex items-center gap-1.5">
+      <button
+        type="button"
+        class="theme-toggle btn btn-ghost h-10 w-10 !min-h-0 !p-0"
+        data-theme-toggle
+        aria-label="Switch to dark theme"
+      >
+        <svg class="theme-icon-moon h-[1.15rem] w-[1.15rem]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 14.4A8.4 8.4 0 0 1 9.6 3.5 8.4 8.4 0 1 0 20.5 14.4Z"></path>
+        </svg>
+        <svg class="theme-icon-sun hidden h-[1.15rem] w-[1.15rem]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+        </svg>
+      </button>
+
+      <a href="/#downloader" class="btn btn-primary hidden h-10 !min-h-0 sm:inline-flex">
+        Start a download
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </a>
+
+      <button
+        type="button"
+        class="btn btn-ghost h-10 w-10 !min-h-0 !p-0 lg:hidden"
+        data-mobile-toggle
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+        aria-label="Open navigation menu"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-navigation" class="hidden border-t border-line bg-canvas lg:hidden" data-mobile-menu>
+    <nav class="container-page py-5" aria-label="Mobile navigation">
+      <div class="grid gap-1">
+        {NAV_LINKS.map((link) => (
+          <a href={link.href} class="rounded-sm px-3 py-2.5 text-sm font-[650] text-ink no-underline hover:bg-sunken">
+            {link.label}
+          </a>
+        ))}
+        <a href="/#downloader" class="rounded-sm px-3 py-2.5 text-sm font-[650] text-ink no-underline hover:bg-sunken">
+          Downloader
+        </a>
+      </div>
+
+      <p class="mb-2 mt-5 px-3 text-[0.66rem] font-[750] uppercase tracking-[0.14em] text-muted">Platforms</p>
+      <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+        {allPlatforms.map((platform) => (
+          <a href={`/${platform.slug}/`} class="rounded-sm px-3 py-2 text-[0.82rem] font-[600] text-soft no-underline hover:bg-sunken hover:text-ink">
+            {platform.name}
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-line px-3 pt-4">
+        {LEGAL_LINKS.slice(0, 3).map((link) => (
+          <a href={link.href} class="text-[0.72rem] font-[600] text-muted no-underline hover:text-ink">
+            {link.label}
+          </a>
+        ))}
+        <a href="/contact/" class="text-[0.72rem] font-[600] text-muted no-underline hover:text-ink">Contact</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  const themeButtons = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+
+  function currentTheme(): 'light' | 'dark' {
+    return root.classList.contains('dark') ? 'dark' : 'light';
+  }
+
+  function syncThemeButtons() {
+    const label = currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    themeButtons.forEach((button) => {
+      button.setAttribute('aria-label', label);
+      button.setAttribute('title', label);
+    });
+    themeColor?.setAttribute('content', currentTheme() === 'dark' ? '#0c100d' : '#f5f3ec');
+  }
+
+  function setTheme(theme: 'light' | 'dark') {
+    root.classList.toggle('dark', theme === 'dark');
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem('clipwell-theme', theme);
+    } catch {
+      // Storage can be unavailable in strict privacy modes. The theme still applies for this page.
+    }
+    syncThemeButtons();
+  }
+
+  themeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    });
+  });
+
+  syncThemeButtons();
+
+  const mobileToggle = document.querySelector<HTMLButtonElement>('[data-mobile-toggle]');
+  const mobileMenu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  const mobileIcon = mobileToggle?.querySelector('svg');
+
+  function setMobileOpen(open: boolean) {
+    if (!mobileToggle || !mobileMenu) return;
+    mobileToggle.setAttribute('aria-expanded', String(open));
+    mobileToggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    mobileMenu.classList.toggle('hidden', !open);
+    if (mobileIcon) {
+      mobileIcon.innerHTML = open
+        ? '<path d="M6 6l12 12M18 6 6 18"></path>'
+        : '<path d="M4 7h16M4 12h16M4 17h16"></path>';
+    }
+  }
+
+  mobileToggle?.addEventListener('click', () => {
+    setMobileOpen(mobileToggle.getAttribute('aria-expanded') !== 'true');
+  });
+
+  mobileMenu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setMobileOpen(false));
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setMobileOpen(false);
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) setMobileOpen(false);
+  });
+</script>

@@ -1,0 +1,110 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { SITE } from '../data/site';
+
+const description =
+  'Important limits on using Clipwell: no platform affiliation, no legal advice, no guarantee of availability, and full user responsibility for downloads.';
+---
+
+<LegalLayout
+  title="Disclaimer"
+  description={description}
+  path="/disclaimer/"
+>
+  <p>
+    This disclaimer explains the limits of the Clipwell service and the information published on this
+    site. It applies alongside the <a href="/terms-of-service/">Terms of Service</a> and
+    <a href="/privacy-policy/">Privacy Policy</a>. By using Clipwell, you accept these limits.
+  </p>
+
+  <h2>No affiliation with supported platforms</h2>
+
+  <p>
+    Clipwell is an independent utility. It is not affiliated with, endorsed by, sponsored by or
+    operated by Instagram, Facebook, YouTube, TikTok, Kick, Twitch, X or any other platform. All
+    third-party names, logos and trademarks belong to their respective owners and are used only to
+    identify the service a link comes from.
+  </p>
+
+  <h2>No legal advice</h2>
+
+  <p>
+    The content on Clipwell — including platform guides, copyright pages and FAQs — is general
+    information, not legal advice. Copyright, privacy and platform rules differ by country and by
+    situation. If you need certainty about a specific use, consult a qualified lawyer in your
+    jurisdiction.
+  </p>
+
+  <h2>Your responsibility for downloads</h2>
+
+  <p>
+    You are solely responsible for the links you submit and the files you download. Clipwell does not
+    determine whether you own a work, have permission to copy it or qualify for a legal exception.
+    Public availability is not a licence. Do not use the service to infringe copyright, invade privacy
+    or violate a platform’s terms.
+  </p>
+
+  <p>
+    Downloaded files may contain personal information, third-party music or other material that is
+    subject to additional rights. You are responsible for how you store, share or publish them.
+  </p>
+
+  <h2>No guarantee of availability or accuracy</h2>
+
+  <p>
+    Platforms change their pages, formats, authentication requirements and geographic restrictions
+    without notice. Clipwell therefore cannot guarantee that a link will work, that a format will
+    remain available, or that metadata will be complete or accurate. A successful extraction only
+    reflects what the public source returned at that moment.
+  </p>
+
+  <p>
+    The service may be unavailable during maintenance, capacity limits, network incidents or
+    upstream outages. It may also refuse a request because of rate limits, file-size limits, legal
+    requirements or security concerns.
+  </p>
+
+  <h2>No storage or backup service</h2>
+
+  <p>
+    Clipwell is not a cloud drive. Download files are held only long enough to deliver the request and
+    are then deleted automatically. Do not rely on a job link as a permanent copy. If a download
+    matters, save it to your own storage and back it up.
+  </p>
+
+  <h2>Third-party links and content</h2>
+
+  <p>
+    The service links to or retrieves information from third-party platforms. Those platforms have
+    their own content, terms and privacy practices. Clipwell does not control them, does not endorse
+    the material they host, and is not responsible for their availability, accuracy or conduct.
+  </p>
+
+  <h2>Security and sensitive data</h2>
+
+  <p>
+    Do not send passwords, cookies, authentication tokens or private media through the downloader or
+    in support email. The service is designed for public links. If you suspect a security issue,
+    contact <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a> with enough detail to
+    reproduce it, but do not include live credentials.
+  </p>
+
+  <h2>Limitation of liability</h2>
+
+  <p>
+    To the maximum extent permitted by law, the operator is not liable for losses arising from your
+    use of the service, including copyright claims, account restrictions, data loss or damage caused
+    by downloaded files. The full limitation is set out in the
+    <a href="/terms-of-service/">Terms of Service</a>. Nothing here excludes liability that cannot
+    lawfully be excluded.
+  </p>
+
+  <h2>Reporting a problem</h2>
+
+  <p>
+    If a page is out of date, a public link fails unexpectedly or you believe the service is being
+    misused, contact <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>. For copyright
+    complaints, use the <a href="/copyright-policy/">Copyright Policy</a> and
+    <a href="/dmca-policy/">DMCA Policy</a>.
+  </p>
+</LegalLayout>

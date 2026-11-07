@@ -1,0 +1,21 @@
+{
+  "name": "Clipwell",
+  "short_name": "Clipwell",
+  "description": "Save public video, audio and captions from seven major platforms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f3ec",
+  "theme_color": "#d94f2b",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

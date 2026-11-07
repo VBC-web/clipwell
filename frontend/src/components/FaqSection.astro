@@ -1,0 +1,44 @@
+---
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: readonly FaqItem[];
+  title?: string;
+  description?: string;
+  id?: string;
+  class?: string;
+}
+
+const {
+  items,
+  title = 'Questions, answered plainly',
+  description = 'No tiny print, no contradictory promises. If something is unavailable, Clipwell says so.',
+  id = 'faq',
+  class: className = '',
+} = Astro.props;
+---
+
+<section id={id} class:list={['scroll-mt-24', className]} aria-labelledby={`${id}-heading`}>
+  <div class="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+    <div>
+      <p class="eyebrow">FAQ</p>
+      <h2 id={`${id}-heading`} class="display-section mt-3">{title}</h2>
+      <p class="mt-4 max-w-sm text-sm leading-relaxed text-soft">{description}</p>
+      <a href="/contact/" class="btn btn-secondary btn-sm mt-5">Ask a different question</a>
+    </div>
+    <div class="border-b border-line">
+      {items.map((item) => (
+        <details class="faq-item">
+          <summary>
+            <span>{item.question}</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">{item.answer}</div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

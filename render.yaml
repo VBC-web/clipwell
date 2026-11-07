@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: clipwell-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: ENABLE_DOCS
+        value: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: TEMP_DIR
+        value: /tmp/clipwell-api
+      - key: MAX_FILE_SIZE_MB
+        value: "500"
+      - key: MAX_CONCURRENT_JOBS
+        value: "2"
+      - key: MAX_PENDING_JOBS
+        value: "20"
+      - key: DOWNLOAD_TTL_SECONDS
+        value: "900"
+      - key: MEDIA_TTL_SECONDS
+        value: "1200"
+    # Render's ephemeral filesystem is fine for Clipwell: temp files expire
+    # automatically and orphaned job directories are cleaned at startup.
