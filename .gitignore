@@ -9,6 +9,7 @@ frontend/.astro/
 frontend/.env
 frontend/.env.production
 backend/.env
+*cookies.txt
 
 .pnpm-store/
 

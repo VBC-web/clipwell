@@ -685,6 +685,10 @@
     background: currentColor;
   }
 
+  .theme-icon-sun {
+    display: none;
+  }
+
   .dark .theme-icon-moon {
     display: none;
   }

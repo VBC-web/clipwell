@@ -265,9 +265,19 @@ class YtDlpService:
     def ffmpeg_available(self) -> bool:
         return self._ffmpeg is not None
 
+    def _resolve_cookies(self) -> str | None:
+        if not self.settings.cookies_file:
+            return None
+        candidate = Path(self.settings.cookies_file).expanduser()
+        if candidate.is_file():
+            return str(candidate.resolve())
+        backend_candidate = Path(__file__).resolve().parent.parent / self.settings.cookies_file
+        if backend_candidate.is_file():
+            return str(backend_candidate.resolve())
+        return None
+
     def _base_args(self) -> list[str]:
         args = [
-            "--ignore-config",
             "--no-warnings",
             "--no-cache-dir",
             "--no-playlist",
@@ -275,6 +285,15 @@ class YtDlpService:
             "--socket-timeout",
             str(self.settings.socket_timeout_seconds),
         ]
+        cookies = self._resolve_cookies()
+        if cookies:
+            args.extend(["--cookies", cookies])
+        if self.settings.use_js_runtime:
+            args.extend(["--js-runtimes", "node"])
+        if self.settings.remote_components:
+            args.extend(["--remote-components", self.settings.remote_components])
+        if self.settings.http_proxy:
+            args.extend(["--proxy", self.settings.http_proxy])
         if self._ffmpeg:
             args.extend(["--ffmpeg-location", self._ffmpeg])
         return args

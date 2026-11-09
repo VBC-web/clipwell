@@ -26,13 +26,17 @@ class Settings(BaseSettings):
     ytdlp_path: str | None = None
     ffmpeg_location: str | None = None
     temp_dir: str | None = None
+    cookies_file: str | None = "cookies.txt"
+    http_proxy: str | None = None
+    use_js_runtime: bool = True
+    remote_components: str | None = "ejs:github"
 
     extract_timeout_seconds: int = 60
     caption_timeout_seconds: int = 75
-    job_timeout_seconds: int = 600
+    job_timeout_seconds: int = 1800
     socket_timeout_seconds: int = 20
     max_duration_seconds: int = 14_400
-    max_file_size_mb: int = 500
+    max_file_size_mb: int = 2000
     media_ttl_seconds: int = 1200
     download_ttl_seconds: int = 900
     caption_ttl_seconds: int = 900
