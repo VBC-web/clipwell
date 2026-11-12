@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import urllib.parse
+import urllib.request
 import logging
 import mimetypes
 import os
@@ -20,6 +23,7 @@ from .errors import AppError
 from .formats import OptionPlan, build_options
 from .models import CaptionTrackOut
 from .subtitles import SubtitleResult, convert_subtitle
+
 from .url_policy import PLATFORMS, Platform
 
 logger = logging.getLogger("clipwell.extractor")
@@ -37,6 +41,12 @@ _ERROR_RULES: list[tuple[re.Pattern[str], str, str, int]] = [
         "or cookies, so this public link cannot be read right now. Try again later or use the "
         "platform's own download option.",
         502,
+    ),
+    (
+        re.compile(r"age[- ]?restrict|confirm your age|sign in to view|members only", re.I),
+        "restricted_media",
+        "This video requires an account, age verification or creator approval. Clipwell cannot bypass those restrictions.",
+        422,
     ),
     (
         re.compile(r"private|login required|members[- ]only|subscriber|age[- ]restricted", re.I),
@@ -288,14 +298,121 @@ class YtDlpService:
         cookies = self._resolve_cookies()
         if cookies:
             args.extend(["--cookies", cookies])
+        if self.settings.pot_provider_url:
+            args.extend(["--extractor-args", f"youtubepot-bgutilhttp:base_url={self.settings.pot_provider_url}"])
         if self.settings.use_js_runtime:
             args.extend(["--js-runtimes", "node"])
         if self.settings.remote_components:
             args.extend(["--remote-components", self.settings.remote_components])
-        if self.settings.http_proxy:
-            args.extend(["--proxy", self.settings.http_proxy])
+        if self.settings.force_ipv4:
+            args.append("--force-ipv4")
+        proxy = self.settings.http_proxy or self.settings.proxy_url
+        if proxy:
+            args.extend(["--proxy", proxy])
         if self._ffmpeg:
             args.extend(["--ffmpeg-location", self._ffmpeg])
+        return args
+
+    def _platform_args(self, url: str, platform: Platform | None = None) -> list[str]:
+        args: list[str] = []
+        lowered = url.lower()
+        is_youtube = (platform is not None and platform.value == "youtube") or "youtube.com" in lowered or "youtu.be" in lowered
+        is_tiktok = (platform is not None and platform.value == "tiktok") or "tiktok.com" in lowered
+        is_twitter = (platform is not None and platform.value == "twitter") or "x.com" in lowered or "twitter.com" in lowered
+        is_kick = (platform is not None and platform.value == "kick") or "kick.com" in lowered
+
+        if is_youtube:
+            args.extend(["--extractor-args", "youtube:player_client=android,web"])
+            args.extend(["--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1"])
+        elif is_tiktok:
+            args.extend(["--extractor-args", f"tiktok:api_hostname={self.settings.tiktok_api_hostname}"])
+            args.extend(["--user-agent", "TikTok 26.2.0 (iPhone; iOS 17.4; Scale/3.00)"])
+            args.extend(["--add-headers", "Referer: https://www.tiktok.com/"])
+        elif is_twitter:
+            args.extend(["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"])
+        elif is_kick:
+            args.extend(["--concurrent-fragments", "8"])
+        return args
+
+    async def _resolve_tiktok_fast(self, url: str) -> Extraction | None:
+        """Try TikWM's lightweight JSON endpoint before falling back to yt-dlp."""
+
+        def fetch() -> dict[str, Any] | None:
+            endpoint = "https://www.tikwm.com/api/?url=" + urllib.parse.quote(url, safe="")
+            request = urllib.request.Request(
+                endpoint,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                    "Accept": "application/json",
+                },
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=4) as response:
+                    payload = json.loads(response.read().decode("utf-8", "replace"))
+            except Exception:
+                return None
+            if not isinstance(payload, dict) or payload.get("code") not in (0, "0", None):
+                return None
+            data = payload.get("data")
+            return data if isinstance(data, dict) else None
+
+        data = await asyncio.to_thread(fetch)
+        if not data:
+            return None
+
+        play = data.get("play") or data.get("wmplay") or data.get("hdplay")
+        hdplay = data.get("hdplay")
+        if not play and not hdplay:
+            return None
+
+        options: list[OptionPlan] = []
+        if hdplay:
+            options.append(
+                OptionPlan(
+                    id="vhd",
+                    kind="video",
+                    label="HD video",
+                    ext="mp4",
+                    selector=str(hdplay),
+                    note="Direct CDN stream",
+                    filesize_bytes=_as_int(data.get("size")),
+                    height=_as_int(data.get("height")) or 1080,
+                    is_original=True,
+                )
+            )
+        if play and play != hdplay:
+            options.append(
+                OptionPlan(
+                    id="vstd",
+                    kind="video",
+                    label="Standard video",
+                    ext="mp4",
+                    selector=str(play),
+                    note="Direct CDN stream",
+                    filesize_bytes=_as_int(data.get("size")),
+                    height=_as_int(data.get("height")) or 720,
+                    is_original=hdplay is None,
+                )
+            )
+        if not options:
+            return None
+
+        title = _clean_text(data.get("title"), 300, multiline=False) or "TikTok public video"
+        uploader = _clean_text(data.get("author", {}).get("nickname") if isinstance(data.get("author"), dict) else data.get("author"), 200, multiline=False)
+        duration = _as_int(data.get("duration"))
+        thumbnail = _safe_thumbnail(data.get("cover") or data.get("origin_cover"))
+        return Extraction(
+            platform=Platform.TIKTOK,
+            source_url=url,
+            title=title,
+            description=_clean_text(data.get("title"), self.settings.max_description_chars),
+            uploader=uploader,
+            thumbnail_url=thumbnail,
+            is_live=False,
+            duration_seconds=duration,
+            options=options,
+            captions=[],
+        )
         return args
 
     def _env(self) -> dict[str, str]:
@@ -335,7 +452,7 @@ class YtDlpService:
         except (asyncio.TimeoutError, ProcessLookupError):
             pass
 
-    async def _run_json(self, url: str) -> dict[str, Any]:
+    async def _run_json(self, url: str, platform: Platform | None = None, timeout: int | None = None, extra_args: list[str] | None = None) -> dict[str, Any]:
         if self._command is None:
             raise AppError(
                 "service_unavailable",
@@ -343,7 +460,8 @@ class YtDlpService:
                 status_code=503,
             )
 
-        args = self._base_args() + [
+        effective_timeout = timeout or self.settings.extract_timeout_seconds
+        args = self._base_args() + self._platform_args(url, platform) + (extra_args or []) + [
             "--extractor-retries",
             "1",
             "--retries",
@@ -374,7 +492,7 @@ class YtDlpService:
         try:
             stdout, stderr = await asyncio.wait_for(
                 process.communicate(),
-                timeout=self.settings.extract_timeout_seconds,
+                timeout=effective_timeout,
             )
         except asyncio.TimeoutError:
             await self._terminate(process)
@@ -400,8 +518,6 @@ class YtDlpService:
                 status_code=502,
             )
 
-        import json
-
         try:
             info = json.loads(output)
         except json.JSONDecodeError:
@@ -422,8 +538,47 @@ class YtDlpService:
             )
         return info
 
+    async def _download_direct(self, url: str, target: Path, on_progress) -> None:
+        def fetch() -> None:
+            request = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                "Referer": "https://www.tiktok.com/",
+                "Accept": "*/*",
+            })
+            with urllib.request.urlopen(request, timeout=60) as response, target.open("wb") as output:
+                total = int(response.headers.get("Content-Length") or 0)
+                downloaded = 0
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+                    downloaded += len(chunk)
+                    if total:
+                        on_progress(max(1, min(99, int(downloaded / total * 100))))
+
+        await asyncio.to_thread(fetch)
+        on_progress(100)
+
     async def extract(self, url: str, platform: Platform) -> Extraction:
-        info = await self._run_json(url)
+        if platform == Platform.TIKTOK:
+            fast = await self._resolve_tiktok_fast(url)
+            if fast is not None:
+                return fast
+            # Fallback to yt-dlp with a short timeout and alternate host.
+            try:
+                info = await self._run_json(url, platform, timeout=8)
+            except AppError as exc:
+                if exc.code != "extract_timeout":
+                    raise
+                info = await self._run_json(
+                    url,
+                    platform,
+                    timeout=8,
+                    extra_args=["--extractor-args", f"tiktok:api_hostname=api16-normal-c-useast1a.tiktokv.com"],
+                )
+        else:
+            info = await self._run_json(url, platform)
 
         if _is_live(info):
             raise AppError(
@@ -505,7 +660,24 @@ class YtDlpService:
 
         workdir.mkdir(parents=True, exist_ok=True, mode=0o700)
         template = str(workdir / "media.%(ext)s")
-        args = self._base_args() + [
+        if plan.selector.startswith(("http://", "https://")):
+            target = workdir / f"media.{plan.ext}"
+            await self._download_direct(plan.selector, target, on_progress)
+            resolved = target.resolve()
+            if not resolved.is_relative_to(workdir.resolve()):
+                raise AppError("download_failed", "The prepared file failed a safety check.", 500)
+            size = resolved.stat().st_size
+            if size <= 0:
+                raise AppError("download_failed", "The prepared file was empty. Try again.", 502)
+            if size > self.settings.max_file_size_bytes:
+                resolved.unlink(missing_ok=True)
+                raise AppError(
+                    "file_too_large",
+                    f"The finished file is larger than the {self.settings.max_file_size_mb} MB limit.",
+                    status_code=413,
+                )
+            return resolved
+        args = self._base_args() + self._platform_args(url, None) + [
             "--newline",
             "--progress",
             "--no-part",

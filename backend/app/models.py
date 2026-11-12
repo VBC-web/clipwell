@@ -37,6 +37,13 @@ class CaptionRequest(StrictRequest):
     auto: bool = False
 
 
+class FeedbackRequest(StrictRequest):
+    category: str = Field(min_length=1, max_length=40)
+    message: str = Field(min_length=1, max_length=4000)
+    url: str | None = Field(default=None, max_length=2048)
+    email: str = Field(min_length=3, max_length=254)
+
+
 class VideoOptionOut(ApiModel):
     id: str
     label: str

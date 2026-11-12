@@ -123,7 +123,15 @@ def _looks_like_tiktok(url) -> bool:
 def _looks_like_kick(url) -> bool:
     if "clip=" in url.query or "video=" in url.query:
         return True
-    return bool(re.match(r"^/(?:video|videos|clip|clips)/[^/]+", url.path, re.I))
+    # Kick VODs and clips are commonly nested under the channel name, e.g.
+    # https://kick.com/scriptedshedy/videos/<uuid>. Channel homepages are not.
+    return bool(
+        re.match(
+            r"^/(?:[^/]+/(?:video|videos|clip|clips)|video|videos|clip|clips)/[^/]+",
+            url.path,
+            re.I,
+        )
+    )
 
 
 def _looks_like_twitch(url) -> bool:

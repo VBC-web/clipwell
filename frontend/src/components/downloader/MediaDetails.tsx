@@ -123,10 +123,10 @@ export function MediaDetails({ media }: Props) {
         </div>
       </div>
 
-      <div className="mt-5 border-t border-line pt-4">
-        <div className="mb-2 flex items-center justify-between gap-3">
+      <div className="mt-5 rounded-md border border-line bg-sunken/70 p-4 shadow-[inset_3px_0_0_var(--accent)] md:p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <h3 className="flex items-center gap-2 font-sans text-[0.72rem] font-[750] uppercase tracking-[0.1em] text-muted">
-            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+            <FileText className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
             Post description
           </h3>
           {media.description && (
@@ -149,7 +149,7 @@ export function MediaDetails({ media }: Props) {
             {longDescription && (
               <button
                 type="button"
-                className="btn btn-ghost btn-sm mt-1 !px-0 text-accent-ink"
+                className="btn btn-ghost btn-sm mt-2 !px-0 text-accent-ink"
                 onClick={() => setExpanded((value) => !value)}
                 aria-expanded={expanded}
               >

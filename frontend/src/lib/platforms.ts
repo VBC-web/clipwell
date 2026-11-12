@@ -238,7 +238,10 @@ function looksLikeTikTok(url: URL): boolean {
 
 function looksLikeKick(url: URL): boolean {
   if (url.searchParams.has('clip') || url.searchParams.has('video')) return true;
-  return /^\/(?:video|videos|clip|clips)\/[^/]+/i.test(url.pathname);
+  // Kick VODs and clips are commonly nested under the channel name.
+  return /^\/(?:[^/]+\/(?:video|videos|clip|clips)|(?:video|videos|clip|clips))\/[^/]+/i.test(
+    url.pathname,
+  );
 }
 
 function looksLikeTwitch(url: URL): boolean {
@@ -250,7 +253,7 @@ function looksLikeTwitch(url: URL): boolean {
 }
 
 function looksLikeTwitter(path: string): boolean {
-  return /^\/(?:i\/)?(?:web\/)?status\/\d+/i.test(path) || /^\/i\/web\/status\/\d+/i.test(path);
+  return /^\/(?:i\/)?(?:web\/)?status\/\d+/i.test(path);
 }
 
 /**

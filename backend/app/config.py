@@ -26,10 +26,15 @@ class Settings(BaseSettings):
     ytdlp_path: str | None = None
     ffmpeg_location: str | None = None
     temp_dir: str | None = None
-    cookies_file: str | None = "cookies.txt"
+    cookies_file: str | None = None
+    pot_provider_url: str | None = "http://127.0.0.1:4416"
     http_proxy: str | None = None
+    proxy_url: str | None = None
     use_js_runtime: bool = True
     remote_components: str | None = "ejs:github"
+    force_ipv4: bool = False
+    auto_update_ytdlp: bool = False
+    tiktok_api_hostname: str = "api22-normal-c-useast2a.tiktokv.com"
 
     extract_timeout_seconds: int = 60
     caption_timeout_seconds: int = 75

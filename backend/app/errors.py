@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any
 
 
@@ -40,9 +39,3 @@ class AppError(Exception):
             error["details"] = self.details
         return {"error": error}
 
-
-@dataclass(slots=True)
-class ErrorInfo:
-    code: str
-    message: str
-    status_code: int

@@ -170,7 +170,7 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
             ? 'video'
             : result.audioOptions.length > 0
               ? 'audio'
-              : 'captions',
+              : 'video',
         );
 
         window.requestAnimationFrame(() => {
@@ -544,6 +544,19 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
                 Supported sites: Instagram, Facebook, YouTube, TikTok, Kick, Twitch and X.
               </p>
             )}
+            <button
+              type="button"
+              className="mt-2 text-xs font-[650] text-danger underline decoration-danger/30 underline-offset-2 hover:decoration-danger"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent('clipwell:open-feedback', {
+                    detail: { url, error: uiError.message },
+                  }),
+                )
+              }
+            >
+              Report this broken link
+            </button>
           </div>
         </div>
       )}
@@ -586,7 +599,6 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
 
       {media && (
         <div ref={resultRef} className="scroll-mt-24 pt-8">
-          <MediaDetails media={media} />
           <DownloadPanel
             media={media}
             tab={tab}
@@ -600,6 +612,7 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
             onDownload={handleDownload}
             onRetry={handleDownload}
           />
+          <MediaDetails media={media} />
         </div>
       )}
 

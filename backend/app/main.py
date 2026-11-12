@@ -24,6 +24,7 @@ from .models import (
     CaptionRequest,
     DownloadRequest,
     ExtractRequest,
+    FeedbackRequest,
     JobOut,
     MediaOut,
 )
@@ -282,6 +283,28 @@ async def _unexpected_error_handler(request: Request, exc: Exception) -> JSONRes
         status_code=500,
     )
 
+
+@router.post("/feedback")
+async def submit_feedback(payload: FeedbackRequest, request: Request) -> dict[str, str]:
+    settings, _, _, _, limiter = _state(request)
+    allow_request(limiter, request, settings, "feedback", 5)
+
+    import json as _json
+    import time as _time
+
+    record = {
+        "receivedAt": _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
+        "category": payload.category,
+        "message": payload.message,
+        "url": payload.url,
+        "email": payload.email,
+    }
+    settings.temp_path.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target = settings.temp_path / "feedback.jsonl"
+    with target.open("a", encoding="utf-8") as handle:
+        handle.write(_json.dumps(record, ensure_ascii=False) + "\n")
+
+    return {"status": "ok"}
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()

@@ -1,5 +1,4 @@
 import {
-  Captions,
   Download,
   Film,
   LoaderCircle,
@@ -8,10 +7,9 @@ import {
 } from 'lucide-react';
 import type { AudioOption, DownloadJob, MediaInfo, VideoOption } from '../../lib/api';
 import { formatBytes } from '../../lib/api';
-import { CaptionPanel } from './CaptionPanel';
 import { DownloadProgress } from './DownloadProgress';
 
-export type DownloadTab = 'video' | 'audio' | 'captions';
+export type DownloadTab = 'video' | 'audio';
 
 interface Props {
   media: MediaInfo;
@@ -141,12 +139,11 @@ export function DownloadPanel({
   const pending = job && ['queued', 'downloading', 'processing'].includes(job.status);
   const ready = job?.status === 'ready';
   const buttonDisabled =
-    tab === 'captions' || !selected || starting || Boolean(pending) || Boolean(ready);
+    !selected || starting || Boolean(pending) || Boolean(ready);
 
   const tabItems: { key: DownloadTab; label: string; icon: typeof Film; count: number }[] = [
     { key: 'video', label: 'Video', icon: Film, count: media.videoOptions.length },
     { key: 'audio', label: 'Audio', icon: Music2, count: media.audioOptions.length },
-    { key: 'captions', label: 'Captions', icon: Captions, count: media.captions.length },
   ];
 
   const buttonLabel = starting
@@ -271,9 +268,7 @@ export function DownloadPanel({
           </div>
         )}
 
-        {tab === 'captions' && <CaptionPanel media={media} />}
-
-        {tab !== 'captions' && (
+        {true && (
           <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs text-muted">
               {selected ? (

@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import FeedbackButton from './FeedbackButton.tsx';
 import { NAV_LINKS, LEGAL_LINKS } from '../data/site';
 import { PLATFORMS } from '../lib/platforms';
 
@@ -41,6 +42,8 @@ const allPlatforms = Object.values(PLATFORMS);
     </nav>
 
     <div class="flex items-center gap-1.5">
+      <FeedbackButton client:load />
+
       <button
         type="button"
         class="theme-toggle btn btn-ghost h-10 w-10 !min-h-0 !p-0"
