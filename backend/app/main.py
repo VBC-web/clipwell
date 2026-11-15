@@ -10,7 +10,7 @@ from typing import Any
 from fastapi import APIRouter, FastAPI, Path, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from starlette.datastructures import MutableHeaders
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -177,6 +177,45 @@ async def job_status(request: Request, job_id: str = _JobId) -> JobOut:
     settings, _, jobs, _, limiter = _state(request)
     allow_request(limiter, request, settings, "status", settings.rate_status_per_minute)
     return jobs.get(job_id).to_out()
+
+@router.get("/jobs/{job_id}/stream")
+async def job_stream(request: Request, job_id: str = _JobId) -> StreamingResponse:
+    """Server-Sent Events stream of job progress (inspired by Autoclip v2).
+
+    Falls back gracefully: clients that cannot use EventSource keep polling
+    ``/api/jobs/{job_id}``. The stream ends when the job reaches a terminal
+    state.
+    """
+    settings, _, jobs, _, limiter = _state(request)
+    allow_request(limiter, request, settings, "status", settings.rate_status_per_minute)
+
+    async def event_generator():
+        last_payload = None
+        while True:
+            if await request.is_disconnected():
+                break
+            try:
+                job = jobs.get(job_id)
+            except AppError:
+                yield "event: error\ndata: {\"code\":\"job_not_found\"}\n\n"
+                break
+            payload = job.to_out().model_dump_json()
+            if payload != last_payload:
+                last_payload = payload
+                yield f"data: {payload}\n\n"
+            if job.status in {"ready", "error", "expired"}:
+                break
+            await asyncio.sleep(0.5)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-store",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @router.get("/jobs/{job_id}/file")

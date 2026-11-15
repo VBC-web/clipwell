@@ -30,3 +30,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Backend tooling artifacts
+backend/.astro/
+backend/node_modules/
+*.bak
+
