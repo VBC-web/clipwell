@@ -215,7 +215,19 @@ export function streamJob(
     es.onmessage = (ev) => {
       if (closed) return;
       try {
-        const next = JSON.parse(ev.data) as DownloadJob;
+        const raw = JSON.parse(ev.data);
+        const next: DownloadJob = {
+          jobId: raw.jobId || raw.job_id,
+          status: raw.status,
+          progress: raw.progress,
+          stage: raw.stage,
+          message: raw.message,
+          error: raw.error,
+          filename: raw.filename,
+          sizeBytes: raw.sizeBytes ?? raw.size_bytes,
+          downloadUrl: raw.downloadUrl || raw.download_url,
+          expiresAt: raw.expiresAt || raw.expires_at,
+        };
         onUpdate(next);
         if (next.status === 'ready' || next.status === 'error' || next.status === 'expired') {
           cleanup(); onDone();

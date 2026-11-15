@@ -199,7 +199,7 @@ async def job_stream(request: Request, job_id: str = _JobId) -> StreamingRespons
             except AppError:
                 yield "event: error\ndata: {\"code\":\"job_not_found\"}\n\n"
                 break
-            payload = job.to_out().model_dump_json()
+            payload = job.to_out().model_dump_json(by_alias=True)
             if payload != last_payload:
                 last_payload = payload
                 yield f"data: {payload}\n\n"
