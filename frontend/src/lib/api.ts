@@ -176,6 +176,64 @@ export function createDownload(mediaId: string, optionId: string): Promise<Downl
   });
 }
 
+// Stream job progress via Server-Sent Events (inspired by Autoclip v2).
+// Falls back to polling when EventSource is unavailable or fails.
+export function streamJob(
+  jobId: string,
+  onUpdate: (job: DownloadJob) => void,
+  onDone: () => void,
+  onError: (err: unknown) => void,
+): () => void {
+  let closed = false;
+  let es: EventSource | null = null;
+  let pollTimer: number | null = null;
+
+  const cleanup = () => {
+    closed = true;
+    if (es) { try { es.close(); } catch {} es = null; }
+    if (pollTimer) { window.clearTimeout(pollTimer); pollTimer = null; }
+  };
+
+  const poll = async () => {
+    if (closed) return;
+    try {
+      const next = await getJob(jobId);
+      if (closed) return;
+      onUpdate(next);
+      if (next.status === 'ready' || next.status === 'error' || next.status === 'expired') {
+        cleanup(); onDone(); return;
+      }
+    } catch (err) {
+      if (!closed) { onError(err); }
+      return;
+    }
+    if (!closed) pollTimer = window.setTimeout(poll, 1200);
+  };
+
+  try {
+    es = new EventSource(apiUrl(`/api/jobs/${encodeURIComponent(jobId)}/stream`));
+    es.onmessage = (ev) => {
+      if (closed) return;
+      try {
+        const next = JSON.parse(ev.data) as DownloadJob;
+        onUpdate(next);
+        if (next.status === 'ready' || next.status === 'error' || next.status === 'expired') {
+          cleanup(); onDone();
+        }
+      } catch {}
+    };
+    es.onerror = () => {
+      if (closed) return;
+      if (es) { try { es.close(); } catch {} es = null; }
+      void poll();
+    };
+  } catch {
+    void poll();
+  }
+
+  return cleanup;
+}
+
 export function getJob(jobId: string): Promise<DownloadJob> {
   return request<DownloadJob>(`/api/jobs/${encodeURIComponent(jobId)}`, {
     timeoutMs: 12_000,

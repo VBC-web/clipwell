@@ -21,7 +21,7 @@ import {
   apiUrl,
   createDownload,
   extractMedia,
-  getJob,
+  streamJob,
   type DownloadJob,
   type MediaInfo,
 } from '../../lib/api';
@@ -203,32 +203,26 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
     void submit(queryUrl);
   }, [initialUrl, submit]);
 
-  // Poll the job until it reaches a terminal state. Each update reschedules.
+  // Stream job progress via SSE (faster than polling, inspired by Autoclip v2),
+  // with automatic polling fallback. Each update replaces the job state.
   useEffect(() => {
     if (!job) return;
     if (['ready', 'error', 'expired'].includes(job.status)) return;
 
-    let cancelled = false;
-    const timer = window.setTimeout(async () => {
-      try {
-        const next = await getJob(job.jobId);
-        if (!cancelled) setJob(next);
-      } catch (error) {
-        if (!cancelled) {
-          setJob({
-            ...job,
-            status: 'error',
-            error: errorMessage(error),
-            stage: 'The download could not be completed',
-          });
-        }
-      }
-    }, 900);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
+    const cleanup = streamJob(
+      job.jobId,
+      (next) => setJob(next),
+      () => {},
+      (error) => {
+        setJob({
+          ...job,
+          status: 'error',
+          error: errorMessage(error),
+          stage: 'The download could not be completed',
+        });
+      },
+    );
+    return cleanup;
   }, [job]);
 
   // Trigger the browser download once, while keeping the visible save button as a fallback.
