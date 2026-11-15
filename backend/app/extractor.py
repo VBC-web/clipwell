@@ -292,6 +292,8 @@ class YtDlpService:
             "--no-cache-dir",
             "--no-playlist",
             "--no-mtime",
+            "--concurrent-fragments",
+            "4",
             "--socket-timeout",
             str(self.settings.socket_timeout_seconds),
         ]
@@ -322,8 +324,13 @@ class YtDlpService:
         is_kick = (platform is not None and platform.value == "kick") or "kick.com" in lowered
 
         if is_youtube:
-            args.extend(["--extractor-args", "youtube:player_client=android,web"])
+            # Try multiple player clients in order (Autoclip v2 technique): the
+            # cookie-free mobile/TV clients frequently slip past YouTube's
+            # "confirm you're not a bot" wall that the default web client trips.
+            args.extend(["--extractor-args", "youtube:player_client=android,ios,tv,mweb,web"])
             args.extend(["--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1"])
+            # Speed: fetch fragments in parallel for DASH/HLS streams.
+            args.extend(["--concurrent-fragments", "4"])
         elif is_tiktok:
             args.extend(["--extractor-args", f"tiktok:api_hostname={self.settings.tiktok_api_hostname}"])
             args.extend(["--user-agent", "TikTok 26.2.0 (iPhone; iOS 17.4; Scale/3.00)"])
