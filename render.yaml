@@ -14,6 +14,10 @@ services:
         value: false
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: FORCE_IPV4
+        value: "true"
+      - key: COOKIES_FILE
+        sync: false
       - key: TEMP_DIR
         value: /tmp/clipwell-api
       - key: MAX_FILE_SIZE_MB
