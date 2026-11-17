@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import urllib.parse
-import urllib.request
 import logging
 import mimetypes
 import os
@@ -293,7 +291,7 @@ class YtDlpService:
             "--no-playlist",
             "--no-mtime",
             "--concurrent-fragments",
-            "4",
+            "8",
             "--socket-timeout",
             str(self.settings.socket_timeout_seconds),
         ]
@@ -330,7 +328,7 @@ class YtDlpService:
             args.extend(["--extractor-args", "youtube:player_client=android,ios,tv,mweb,web"])
             args.extend(["--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1"])
             # Speed: fetch fragments in parallel for DASH/HLS streams.
-            args.extend(["--concurrent-fragments", "4"])
+            args.extend(["--concurrent-fragments", "8"])
         elif is_tiktok:
             args.extend(["--extractor-args", f"tiktok:api_hostname={self.settings.tiktok_api_hostname}"])
             args.extend(["--user-agent", "TikTok 26.2.0 (iPhone; iOS 17.4; Scale/3.00)"])
@@ -339,87 +337,6 @@ class YtDlpService:
             args.extend(["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"])
         elif is_kick:
             args.extend(["--concurrent-fragments", "8"])
-        return args
-
-    async def _resolve_tiktok_fast(self, url: str) -> Extraction | None:
-        """Try TikWM's lightweight JSON endpoint before falling back to yt-dlp."""
-
-        def fetch() -> dict[str, Any] | None:
-            endpoint = "https://www.tikwm.com/api/?url=" + urllib.parse.quote(url, safe="")
-            request = urllib.request.Request(
-                endpoint,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-                    "Accept": "application/json",
-                },
-            )
-            try:
-                with urllib.request.urlopen(request, timeout=4) as response:
-                    payload = json.loads(response.read().decode("utf-8", "replace"))
-            except Exception:
-                return None
-            if not isinstance(payload, dict) or payload.get("code") not in (0, "0", None):
-                return None
-            data = payload.get("data")
-            return data if isinstance(data, dict) else None
-
-        data = await asyncio.to_thread(fetch)
-        if not data:
-            return None
-
-        play = data.get("play") or data.get("wmplay") or data.get("hdplay")
-        hdplay = data.get("hdplay")
-        if not play and not hdplay:
-            return None
-
-        options: list[OptionPlan] = []
-        if hdplay:
-            options.append(
-                OptionPlan(
-                    id="vhd",
-                    kind="video",
-                    label="HD video",
-                    ext="mp4",
-                    selector=str(hdplay),
-                    note="Direct CDN stream",
-                    filesize_bytes=_as_int(data.get("size")),
-                    height=_as_int(data.get("height")) or 1080,
-                    is_original=True,
-                )
-            )
-        if play and play != hdplay:
-            options.append(
-                OptionPlan(
-                    id="vstd",
-                    kind="video",
-                    label="Standard video",
-                    ext="mp4",
-                    selector=str(play),
-                    note="Direct CDN stream",
-                    filesize_bytes=_as_int(data.get("size")),
-                    height=_as_int(data.get("height")) or 720,
-                    is_original=hdplay is None,
-                )
-            )
-        if not options:
-            return None
-
-        title = _clean_text(data.get("title"), 300, multiline=False) or "TikTok public video"
-        uploader = _clean_text(data.get("author", {}).get("nickname") if isinstance(data.get("author"), dict) else data.get("author"), 200, multiline=False)
-        duration = _as_int(data.get("duration"))
-        thumbnail = _safe_thumbnail(data.get("cover") or data.get("origin_cover"))
-        return Extraction(
-            platform=Platform.TIKTOK,
-            source_url=url,
-            title=title,
-            description=_clean_text(data.get("title"), self.settings.max_description_chars),
-            uploader=uploader,
-            thumbnail_url=thumbnail,
-            is_live=False,
-            duration_seconds=duration,
-            options=options,
-            captions=[],
-        )
         return args
 
     def _env(self) -> dict[str, str]:
@@ -545,44 +462,20 @@ class YtDlpService:
             )
         return info
 
-    async def _download_direct(self, url: str, target: Path, on_progress) -> None:
-        def fetch() -> None:
-            request = urllib.request.Request(url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-                "Referer": "https://www.tiktok.com/",
-                "Accept": "*/*",
-            })
-            with urllib.request.urlopen(request, timeout=60) as response, target.open("wb") as output:
-                total = int(response.headers.get("Content-Length") or 0)
-                downloaded = 0
-                while True:
-                    chunk = response.read(1024 * 1024)
-                    if not chunk:
-                        break
-                    output.write(chunk)
-                    downloaded += len(chunk)
-                    if total:
-                        on_progress(max(1, min(99, int(downloaded / total * 100))))
-
-        await asyncio.to_thread(fetch)
-        on_progress(100)
-
     async def extract(self, url: str, platform: Platform) -> Extraction:
         if platform == Platform.TIKTOK:
-            fast = await self._resolve_tiktok_fast(url)
-            if fast is not None:
-                return fast
-            # Fallback to yt-dlp with a short timeout and alternate host.
+            # Keep TikTok on the same yt-dlp extraction path as every platform.
+            # Retry with an alternate API host only when the first attempt times out.
             try:
-                info = await self._run_json(url, platform, timeout=8)
+                info = await self._run_json(url, platform, timeout=self.settings.extract_timeout_seconds)
             except AppError as exc:
                 if exc.code != "extract_timeout":
                     raise
                 info = await self._run_json(
                     url,
                     platform,
-                    timeout=8,
-                    extra_args=["--extractor-args", f"tiktok:api_hostname=api16-normal-c-useast1a.tiktokv.com"],
+                    timeout=self.settings.extract_timeout_seconds,
+                    extra_args=["--extractor-args", "tiktok:api_hostname=api16-normal-c-useast1a.tiktokv.com"],
                 )
         else:
             info = await self._run_json(url, platform)
@@ -656,7 +549,7 @@ class YtDlpService:
         url: str,
         plan: OptionPlan,
         workdir: Path,
-        on_progress: Callable[[int], None],
+        on_progress: Callable[[int, int | None], None],
     ) -> Path:
         if self._command is None:
             raise AppError(
@@ -667,23 +560,6 @@ class YtDlpService:
 
         workdir.mkdir(parents=True, exist_ok=True, mode=0o700)
         template = str(workdir / "media.%(ext)s")
-        if plan.selector.startswith(("http://", "https://")):
-            target = workdir / f"media.{plan.ext}"
-            await self._download_direct(plan.selector, target, on_progress)
-            resolved = target.resolve()
-            if not resolved.is_relative_to(workdir.resolve()):
-                raise AppError("download_failed", "The prepared file failed a safety check.", 500)
-            size = resolved.stat().st_size
-            if size <= 0:
-                raise AppError("download_failed", "The prepared file was empty. Try again.", 502)
-            if size > self.settings.max_file_size_bytes:
-                resolved.unlink(missing_ok=True)
-                raise AppError(
-                    "file_too_large",
-                    f"The finished file is larger than the {self.settings.max_file_size_mb} MB limit.",
-                    status_code=413,
-                )
-            return resolved
         args = self._base_args() + self._platform_args(url, None) + [
             "--newline",
             "--progress",
@@ -698,13 +574,15 @@ class YtDlpService:
         ]
 
         if plan.kind == "video":
-            if not self.ffmpeg_available:
+            needs_merge = "+" in plan.selector or "bestvideo" in plan.selector
+            if needs_merge and not self.ffmpeg_available:
                 raise AppError(
                     "service_unavailable",
                     "This server cannot merge video and audio because FFmpeg is missing.",
                     status_code=503,
                 )
-            args.extend(["--merge-output-format", "mp4"])
+            if self.ffmpeg_available:
+                args.extend(["--merge-output-format", "mp4"])
         elif plan.audio_format:
             if not self.ffmpeg_available:
                 raise AppError(
@@ -760,8 +638,16 @@ class YtDlpService:
                             percent = max(0, min(100, int(float(match.group(1)))))
                         except ValueError:
                             continue
+                        eta = None
+                        eta_match = re.search(r"ETA\s+(\d{1,2}):(\d{2})(?::(\d{2}))?", text)
+                        if eta_match:
+                            parts = [int(x) for x in eta_match.groups() if x is not None]
+                            if len(parts) == 2:
+                                eta = parts[0] * 60 + parts[1]
+                            elif len(parts) == 3:
+                                eta = parts[0] * 3600 + parts[1] * 60 + parts[2]
                         try:
-                            on_progress(percent)
+                            on_progress(percent, eta)
                         except Exception:  # Progress reporting must never break a download.
                             logger.exception("Progress callback failed")
             finally:

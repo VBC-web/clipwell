@@ -46,6 +46,7 @@ class Job:
     error: str | None = None
     filename: str | None = None
     size_bytes: int | None = None
+    eta_seconds: int | None = None
     path: Path | None = None
     media_type: str | None = None
     created_at: float = field(default_factory=time.monotonic)
@@ -78,6 +79,7 @@ class Job:
             error=self.error,
             filename=self.filename,
             size_bytes=self.size_bytes,
+            eta_seconds=self.eta_seconds,
             download_url=download_url,
             expires_at=expires,
         )
@@ -152,8 +154,9 @@ class JobManager:
 
                 workdir = self.jobs_dir / job.id
 
-                def report(percent: int) -> None:
+                def report(percent: int, eta: int | None = None) -> None:
                     job.progress = max(1, min(90, round(percent * 0.9)))
+                    job.eta_seconds = eta
 
                 path = await self.service.download(
                     job.source_url,

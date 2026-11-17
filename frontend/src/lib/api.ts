@@ -58,6 +58,7 @@ export interface DownloadJob {
   sizeBytes: number | null;
   downloadUrl: string | null;
   expiresAt: string | null;
+  etaSeconds: number | null;
 }
 
 export interface CaptionContent {
@@ -227,6 +228,7 @@ export function streamJob(
           sizeBytes: raw.sizeBytes ?? raw.size_bytes,
           downloadUrl: raw.downloadUrl || raw.download_url,
           expiresAt: raw.expiresAt || raw.expires_at,
+          etaSeconds: raw.etaSeconds ?? raw.eta_seconds ?? null,
         };
         onUpdate(next);
         if (next.status === 'ready' || next.status === 'error' || next.status === 'expired') {

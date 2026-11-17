@@ -46,6 +46,24 @@ def test_without_ffmpeg_only_progressive_video_and_no_mp3(
     assert all("bestvideo" not in option.selector for option in video)
 
 
+def test_dimensionless_video_only_is_not_offered_without_ffmpeg() -> None:
+    info = {"formats": [{"ext": "m3u8", "vcodec": "h264", "acodec": "none"}]}
+    options = build_options(info, ffmpeg_available=False)
+    assert not any(option.kind == "video" for option in options)
+
+
+def test_dimensionless_video_uses_merge_selector_when_ffmpeg_is_available() -> None:
+    info = {
+        "formats": [
+            {"ext": "m3u8", "vcodec": "h264", "acodec": "none"},
+            {"ext": "m4a", "vcodec": "none", "acodec": "aac"},
+        ]
+    }
+    video = [option for option in build_options(info, ffmpeg_available=True) if option.kind == "video"]
+    assert video
+    assert "+bestaudio" in video[0].selector
+
+
 def test_no_formats_produces_no_fake_options() -> None:
     assert build_options({"formats": []}) == []
     assert build_options({}) == []

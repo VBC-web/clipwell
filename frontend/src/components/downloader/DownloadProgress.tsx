@@ -99,6 +99,7 @@ export function DownloadProgress({ job, onRetry }: Props) {
 
       <p className="mt-2 text-[0.72rem] text-muted">
         {job.message || 'Keep this tab open. Large videos can take a minute to process.'}
+        {job.etaSeconds ? ` · ETA ${job.etaSeconds}s` : ''}
       </p>
       {!isTerminal && (
         <p className="sr-only">

@@ -95,6 +95,7 @@ class JobOut(ApiModel):
     error: str | None = None
     filename: str | None = None
     size_bytes: int | None = None
+    eta_seconds: int | None = None
     download_url: str | None = None
     expires_at: datetime | None = None
 

@@ -206,24 +206,28 @@ export default function Downloader({ platform, initialUrl = '', className = '' }
   // Stream job progress via SSE (faster than polling, inspired by Autoclip v2),
   // with automatic polling fallback. Each update replaces the job state.
   useEffect(() => {
-    if (!job) return;
-    if (['ready', 'error', 'expired'].includes(job.status)) return;
+    const jobId = job?.jobId;
+    if (!jobId || ["ready", "error", "expired"].includes(job.status)) return;
 
     const cleanup = streamJob(
-      job.jobId,
+      jobId,
       (next) => setJob(next),
       () => {},
       (error) => {
-        setJob({
-          ...job,
-          status: 'error',
-          error: errorMessage(error),
-          stage: 'The download could not be completed',
-        });
+        setJob((current) =>
+          current?.jobId === jobId
+            ? {
+                ...current,
+                status: "error",
+                error: errorMessage(error),
+                stage: "The download could not be completed",
+              }
+            : current,
+        );
       },
     );
     return cleanup;
-  }, [job]);
+  }, [job?.jobId]);
 
   // Trigger the browser download once, while keeping the visible save button as a fallback.
   useEffect(() => {

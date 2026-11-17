@@ -60,6 +60,20 @@ def test_extract_reports_only_reported_formats(base_settings) -> None:
         assert data["captions"][1]["auto"] is True
 
 
+def test_progressive_download_works_without_ffmpeg(base_settings) -> None:
+    settings = base_settings.model_copy(update={"ffmpeg_location": "missing-ffmpeg"})
+    app = create_app(settings)
+    with TestClient(app) as client:
+        extracted = client.post("/api/extract", json={"url": YOUTUBE_URL}).json()
+        created = client.post(
+            "/api/download",
+            json={"mediaId": extracted["mediaId"], "optionId": "v720"},
+        )
+        assert created.status_code == 200, created.text
+        finished = wait_for_job(client, created.json()["jobId"])
+        assert finished["status"] == "ready", finished
+
+
 def test_full_download_and_caption_workflow(base_settings) -> None:
     app = create_app(base_settings)
     with TestClient(app) as client:
@@ -117,7 +131,7 @@ def test_mp3_download_returns_audio_file(base_settings) -> None:
         finished = wait_for_job(client, created.json()["jobId"])
         assert finished["status"] == "ready", finished
         assert finished["filename"].endswith(".mp3")
-
+#UFO Siuuuuuu
         file_response = client.get(finished["downloadUrl"])
         assert file_response.status_code == 200
         assert file_response.headers["content-type"] == "audio/mpeg"

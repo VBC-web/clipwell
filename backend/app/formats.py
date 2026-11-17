@@ -57,7 +57,14 @@ def _size(fmt: dict[str, Any]) -> int | None:
 
 def _has_video(fmt: dict[str, Any]) -> bool:
     codec = fmt.get("vcodec")
-    return bool(codec) and str(codec).lower() != "none"
+    if codec and str(codec).lower() != "none":
+        return True
+    # Some extractors (e.g. Twitch) report unknown codecs but expose dimensions.
+    if _as_int(fmt.get("height")) or _as_int(fmt.get("width")):
+        return True
+    # HLS-only sources (e.g. Kick clips) may have no codec or dimensions.
+    ext = str(fmt.get("ext") or "").lower()
+    return ext in {"mp4", "webm", "mkv", "mov", "m3u8", "ts", "flv"}
 
 
 def _has_audio(fmt: dict[str, Any]) -> bool:
@@ -191,6 +198,21 @@ def build_options(
                 height=height,
                 fps=fps,
                 is_original=height == max_height,
+            )
+        )
+
+    if not any(option.kind == "video" for option in options) and any(
+        _has_video(fmt) and (ffmpeg_available or _has_audio(fmt)) for fmt in formats
+    ):
+        options.append(
+            OptionPlan(
+                id="vbest",
+                kind="video",
+                label="Best available",
+                ext="mp4",
+                selector="bestvideo*+bestaudio/best" if ffmpeg_available else "best",
+                note="Source stream",
+                is_original=True,
             )
         )
 
