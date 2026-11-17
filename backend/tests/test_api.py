@@ -118,7 +118,6 @@ def test_full_download_and_caption_workflow(base_settings) -> None:
         assert "00:00:00,000 --> 00:00:04,000" in payload["srt"]
         assert "Second caption line." in payload["srt"]
 
-
 def test_mp3_download_returns_audio_file(base_settings) -> None:
     app = create_app(base_settings)
     with TestClient(app) as client:
