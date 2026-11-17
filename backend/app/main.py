@@ -16,7 +16,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .config import Settings, get_settings
 from .errors import AppError
-from .extractor import YtDlpService
+from .extractors.ytdlp_engine import YtDlpService
 from .jobs import JobManager
 from .media_store import MediaStore
 from .models import (

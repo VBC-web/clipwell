@@ -13,7 +13,7 @@ from pathlib import Path
 
 from .config import Settings
 from .errors import AppError
-from .extractor import YtDlpService
+from .extractors.ytdlp_engine import YtDlpService
 from .formats import OptionPlan
 from .media_store import MediaRecord
 from .models import JobOut, JobStatus
