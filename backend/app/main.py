@@ -136,6 +136,7 @@ async def health(request: Request) -> dict[str, Any]:
         "environment": settings.environment,
         "ytdlp": service.available,
         "ffmpeg": service.ffmpeg_available,
+        "deno": getattr(service, "deno_available", False),
     }
 
 

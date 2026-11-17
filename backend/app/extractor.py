@@ -253,17 +253,43 @@ def _caption_tracks(info: dict[str, Any]) -> list[CaptionTrackOut]:
     return tracks[:60]
 
 
+def _resolve_deno() -> str | None:
+    """Locate the Deno executable (JS runtime for yt-dlp EJS)."""
+    env = os.environ.get("DENO_PATH")
+    if env and Path(env).is_file():
+        return str(Path(env).resolve())
+    found = shutil.which("deno")
+    if found:
+        return found
+    for candidate in ("/opt/deno/bin/deno", "/usr/local/bin/deno", "/root/.deno/bin/deno"):
+        if Path(candidate).is_file():
+            return candidate
+    return None
+
+
 class YtDlpService:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._command = _resolve_ytdlp(settings)
         self._ffmpeg = _resolve_ffmpeg(settings)
+        self._deno = _resolve_deno()
         if self._command is None:
             logger.error(
                 "yt-dlp is not available. Install it or set YTDLP_PATH to a working executable."
             )
         if self._ffmpeg is None:
             logger.warning("FFmpeg is not available. Merged video and MP3 options will be disabled.")
+        if self._deno is None:
+            logger.warning(
+                "Deno (JS runtime) is not available. yt-dlp EJS/JS challenges may fail. "
+                "Install Deno or set it on PATH."
+            )
+        else:
+            logger.info("Deno available: %s", self._deno)
+
+    @property
+    def deno_available(self) -> bool:
+        return self._deno is not None
 
     @property
     def available(self) -> bool:
