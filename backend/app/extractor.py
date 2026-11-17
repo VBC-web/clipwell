@@ -273,6 +273,8 @@ class YtDlpService:
         self._command = _resolve_ytdlp(settings)
         self._ffmpeg = _resolve_ffmpeg(settings)
         self._deno = _resolve_deno()
+        self._extract_cache: dict[str, tuple[float, 'Extraction']] = {}
+        self._extract_cache_ttl = getattr(settings, 'extract_cache_ttl_seconds', 300)
         if self._command is None:
             logger.error(
                 "yt-dlp is not available. Install it or set YTDLP_PATH to a working executable."
@@ -489,6 +491,12 @@ class YtDlpService:
         return info
 
     async def extract(self, url: str, platform: Platform) -> Extraction:
+        import time as _t
+        _key = f"{platform.value}:{url}"
+        _cached = self._extract_cache.get(_key)
+        if _cached and (_t.monotonic() - _cached[0]) < self._extract_cache_ttl:
+            logger.debug("extract cache hit: %s", _key)
+            return _cached[1]
         if platform == Platform.TIKTOK:
             # Keep TikTok on the same yt-dlp extraction path as every platform.
             # Retry with an alternate API host only when the first attempt times out.
@@ -557,7 +565,7 @@ class YtDlpService:
         )
         captions = _caption_tracks(info)
 
-        return Extraction(
+        _result = Extraction(
             platform=platform,
             source_url=url,
             title=title,
@@ -569,6 +577,11 @@ class YtDlpService:
             options=options,
             captions=captions,
         )
+        try:
+            self._extract_cache[_key] = (_t.monotonic(), _result)
+        except Exception:
+            pass
+        return _result
 
     async def download(
         self,

@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     max_duration_seconds: int = 14_400
     max_file_size_mb: int = 2000
     media_ttl_seconds: int = 1200
+    extract_cache_ttl_seconds: int = 300
     download_ttl_seconds: int = 900
     caption_ttl_seconds: int = 900
 

@@ -7,6 +7,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-production}
       ENABLE_DOCS: ${ENABLE_DOCS:-false}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      POT_PROVIDER_URL: ${POT_PROVIDER_URL:-http://bgutil:4416}
       TEMP_DIR: /tmp/clipwell-api
       MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-500}
       MAX_CONCURRENT_JOBS: ${MAX_CONCURRENT_JOBS:-2}
@@ -26,6 +27,21 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  # Optional YouTube PO-token provider (bgutil). Start with: docker compose --profile pot up
+  # Restricted to the private compose network; never expose publicly.
+  bgutil:
+    image: brainicism/bgutil-ytdlp-pot-provider:latest
+    restart: unless-stopped
+    profiles: ["pot"]
+    environment:
+      PORT: "4416"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4416/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   frontend:
     build:
