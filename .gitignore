@@ -36,3 +36,8 @@ backend/.astro/
 backend/node_modules/
 *.bak
 
+
+# Cookie conversion inputs/outputs (secrets)
+backend/cookies_input.json
+backend/cookies.txt
+
